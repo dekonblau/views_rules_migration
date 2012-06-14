@@ -1,0 +1,33 @@
+<?php
+/**
+ * @file
+ * Views & Rules deep-level integration.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function views_rules_views_api() {
+  return array(
+    'version' => '3.0',
+  );
+}
+
+/**
+ * Implements hook_views_plugins().
+ */
+function views_rules_views_plugins() {
+  return array(
+    'display' => array(
+      'rules' => array(
+        'title' => t('Rules'),
+        'help' => t('Provide a display for using results in Rules.'),
+        'handler' => 'views_rules_plugin_display_rules',
+        'uses hook menu' => FALSE,
+        'uses fields' => TRUE,
+        'accept attachments' => FALSE,
+        'admin' => t('Rules'),
+      ),
+    ),
+  );
+}
