@@ -7,6 +7,6 @@
 /**
  * Views loop administrative UI.
  */
-class ViewsRulesLoopUI extends RulesLoopUI {
+class ViewsRulesLoopUI extends RulesActionContainerUI {
   // TODO
 }
