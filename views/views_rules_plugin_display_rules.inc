@@ -26,26 +26,28 @@ class views_rules_plugin_display_rules extends views_plugin_display {
   function options_summary(&$categories, &$options) {
     parent::options_summary($categories, $options);
 
-    // Add Rules category.
-    $categories['rules'] = array(
-      'title' => t('Rules settings'),
-      'column' => 'second',
-      'build' => array(
-        '#weight' => -10,
-      ),
-    );
+    if ($this->uses_fields() || $entity_info = entity_get_info($this->view->base_table)) {
+      // Add Rules category.
+      $categories['rules'] = array(
+        'title' => t('Rules settings'),
+        'column' => 'second',
+        'build' => array(
+          '#weight' => -10,
+        ),
+      );
 
-    // Add 'parameter' and 'provides' options.
-    $options['parameter'] = array(
-      'category' => 'rules',
-      'title' => t('Parameters'),
-      'value' => t('edit'),
-    );
-    $options['variables'] = array(
-      'category' => 'rules',
-      'title' => t('Row variables'),
-      'value' => t('edit'),
-    );
+      // Add 'parameter' and 'provides' options.
+      $options['parameter'] = array(
+        'category' => 'rules',
+        'title' => t('Parameters'),
+        'value' => t('edit'),
+      );
+      $options['variables'] = array(
+        'category' => 'rules',
+        'title' => t('Row variables'),
+        'value' => isset($entity_info) ? $entity_info['label'] : t('edit'),
+      );
+    }
   }
 
   /**
@@ -56,10 +58,12 @@ class views_rules_plugin_display_rules extends views_plugin_display {
 
     switch ($form_state['section']) {
       case 'parameter':
+        $form['#tree'] = TRUE;
         $this->parameter_option_form($form, $form_state);
         break;
 
       case 'variables':
+        $form['#tree'] = TRUE;
         $this->variables_option_form($form, $form_state);
         break;
     }
@@ -80,7 +84,13 @@ class views_rules_plugin_display_rules extends views_plugin_display {
   function options_submit(&$form, &$form_state) {
     parent::options_submit($form, $form_state);
 
-    // TODO
+    switch ($form_state['section']) {
+      case 'parameter':
+      case 'variables':
+        $option = $form_state['values']['options'];
+        $this->set_option($form_state['section'], $option);
+        break;
+    }
   }
 
   /**
@@ -107,19 +117,43 @@ class views_rules_plugin_display_rules extends views_plugin_display {
   function variables_option_form(&$form, &$form_state) {
     // Add configuration for fields.
     if ($this->uses_fields()) {
-      // TODO Add form for each view field.
-    }
-    // Add configuration for entity types.
-    elseif (entity_get_info($this->view->base_table)) {
-      // TODO Add form for a default row variable.
-    }
-  }
+      // Build variable forms.
+      $option_variables = (array) $this->get_option('variables');
+      foreach ($this->get_field_labels() as $variable => $label) {
+        $option_variables += array($variable => array());
+        $option_variables[$variable] += array(
+          'type' => NULL,
+        );
 
-  /**
-   * Builds form for a variable.
-   */
-  function get_variable_form($name, $settings = array()) {
-    // TODO
+        $form[$variable] = array(
+          '#type' => 'fieldset',
+          '#title' => $label,
+        );
+        $form[$variable]['type'] = array(
+          '#type' => 'select',
+          '#title' => t('Variable type'),
+          '#options' => views_rules_data_type_options(),
+          '#default_value' => $option_variables[$variable]['type'],
+        );
+      }
+    }
+    // Show notice for default entity type.
+    elseif ($entity_info = entity_get_info($entity_type = $this->view->base_table)) {
+      $form['notice'] = array(
+        '#markup' => '<p>' . t('The row style does not use fields. The loop item variable will be the entity variable.') . '</p>',
+      );
+      $form['variable'] = array(
+        '#prefix' => '<p>' . t('Variable details:') . '</p>',
+        '#markup' => '<dl>' .
+          '<dt>' . t('Type') . '</dt>' .
+          '<dd>' . $entity_info['label'] . '</dd>' .
+          '<dt>' . t('Label') . '</dt>' .
+          '<dd>' . $entity_info['label'] . '</dd>' .
+          '<dt>' . t('Name') . '</dt>' .
+          '<dd>' . $entity_type . '</dd>' .
+          '</dl>',
+      );
+    }
   }
 
   /**
@@ -150,7 +184,39 @@ class views_rules_plugin_display_rules extends views_plugin_display {
    * Gets row variable info for Rules.
    */
   function get_rules_variable_info() {
-    // TODO
+    // Return configured field variables.
+    if ($this->uses_fields()) {
+      $option_variables = (array) $this->get_option('variables');
+      $info = array();
+      foreach ($this->get_field_labels() as $variable => $label) {
+        if (isset($option_variables[$variable])) {
+          $info[$variable] = $option_variables[$variable] + array(
+            'label' => $label,
+          );
+        }
+      }
+      return $info;
+    }
+    // Return row variable.
+    elseif ($entity_info = entity_get_info($entity_type = $this->view->base_table)) {
+      $info = array(
+        $entity_type => array(
+          'type' => $entity_type,
+          'label' => $entity_info['label'],
+        ),
+      );
+      return $info;
+    }
+
+    // Return no variable otherwise.
     return array();
   }
+}
+
+/**
+ * Validates a variable machine name.
+ */
+function views_rules_element_machine_name_validate($element, &$form_state) {
+  module_load_include('inc', 'rules', 'ui/ui.forms');
+  rules_ui_element_machine_name_validate($element, $form_state);
 }

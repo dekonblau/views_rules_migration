@@ -5,6 +5,26 @@
  */
 
 /**
+ * Gets data types.
+ */
+function views_rules_data_type_options() {
+  $cache = rules_get_cache();
+  $data_info = $cache['data_info'];
+  unset($data_info['list']);
+  $items = array();
+  foreach ($data_info as $name => $info) {
+    if (strpos($name, 'list<') === FALSE) {
+      $items[$name] = $info;
+    }
+  }
+  // Build options list as Rules UI would.
+  module_load_include('inc', 'rules', 'ui/ui.core');
+  $options = RulesPluginUI::getOptions('data', $items);
+
+  return $options;
+}
+
+/**
  * Implements hook_views_api().
  */
 function views_rules_views_api() {
