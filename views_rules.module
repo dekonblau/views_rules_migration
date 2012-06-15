@@ -23,6 +23,7 @@ function views_rules_views_plugins() {
         'title' => t('Rules'),
         'help' => t('Provide a display for using results in Rules.'),
         'handler' => 'views_rules_plugin_display_rules',
+        'theme' => 'views_view',
         'uses hook menu' => FALSE,
         'uses fields' => TRUE,
         'accept attachments' => FALSE,
