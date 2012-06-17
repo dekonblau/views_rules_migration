@@ -369,8 +369,10 @@ class views_rules_plugin_display_rules extends views_plugin_display {
    * Gets parameter info for Rules.
    */
   function get_rules_parameter_info() {
-    // TODO
-    return array();
+    $option_parameter = (array) $this->get_option('rules_parameter');
+    $option_parameter = $this->extract_enabled_options($option_parameter);
+    $option_parameter = array_intersect_key($option_parameter, $this->get_argument_labels());
+    return $this->get_rules_info_from_option($option_parameter);
   }
 
   /**
@@ -380,15 +382,9 @@ class views_rules_plugin_display_rules extends views_plugin_display {
     // Return configured field variables.
     if ($this->uses_fields()) {
       $option_variables = (array) $this->get_option('rules_variables');
-      $info = array();
-      foreach ($this->get_field_labels() as $variable => $label) {
-        if (isset($option_variables[$variable])) {
-          $info[$variable] = $option_variables[$variable] + array(
-            'label' => $label,
-          );
-        }
-      }
-      return $info;
+      $option_variables = $this->extract_enabled_options($option_variables);
+      $option_variables = array_intersect_key($option_variables, $this->get_field_labels());
+      return $this->get_rules_info_from_option($option_variables);
     }
     // Return row variable.
     elseif ($entity_info = entity_get_info($entity_type = $this->view->base_table)) {
@@ -403,5 +399,24 @@ class views_rules_plugin_display_rules extends views_plugin_display {
 
     // Return no variable otherwise.
     return array();
+  }
+
+  /**
+   * Gets processed Rules info from an option value.
+   */
+  function get_rules_info_from_option($option) {
+    $info = array();
+    foreach ($option as $var => $var_info) {
+      $var_info += array(
+        'type' => NULL,
+        'name' => NULL,
+        'label' => NULL,
+      );
+      $info[$var_info['name']] = array(
+        'type' => $var_info['type'],
+        'label' => $var_info['label'],
+      );
+    }
+    return $info;
   }
 }
