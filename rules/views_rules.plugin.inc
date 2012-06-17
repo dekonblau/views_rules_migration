@@ -7,7 +7,7 @@
 /**
  * Loop plugin for using results from a view with Rules displays.
  */
-class ViewsRulesLoop extends RulesActionContainer {
+class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable {
 
   protected $itemName = 'views loop';
 
@@ -40,6 +40,10 @@ class ViewsRulesLoop extends RulesActionContainer {
     }
   }
 
+  public function evaluateViewRow(array $variables) {
+    // TODO
+  }
+
   protected function stateVariables($element = NULL) {
     // TODO
     return parent::stateVariables($element);
@@ -59,4 +63,11 @@ class ViewsRulesLoop extends RulesActionContainer {
     parent::importSettings($export);
     // TODO
   }
+}
+
+/**
+ * Interface for an iterable Rules plugin for calling back from Views.
+ */
+interface ViewsRulesIterable {
+  // TODO
 }

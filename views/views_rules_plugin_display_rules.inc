@@ -7,7 +7,7 @@
 /**
  * Rules display plugin.
  */
-class views_rules_plugin_display_rules extends views_plugin_display {
+class views_rules_plugin_display_rules extends views_plugin_display implements views_rules_iterator {
   /**
    * Defines options for configuring the display with Rules.
    */
@@ -419,4 +419,11 @@ class views_rules_plugin_display_rules extends views_plugin_display {
     }
     return $info;
   }
+}
+
+/**
+ * Interface for a Views iterator.
+ */
+interface views_rules_iterator {
+  // TODO
 }
