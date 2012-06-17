@@ -419,11 +419,25 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     }
     return $info;
   }
+
+  /**
+   * Executes the iterator display.
+   *
+   * @param ViewsRulesIterable $iterable
+   */
+  function execute_iterator($iterable) {
+    // TODO
+  }
 }
 
 /**
  * Interface for a Views iterator.
  */
 interface views_rules_iterator {
-  // TODO
+  /**
+   * Executes the iterator display.
+   *
+   * @param ViewsRulesIterable $iterable
+   */
+  function execute_iterator($iterator);
 }
