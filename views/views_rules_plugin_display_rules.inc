@@ -76,8 +76,26 @@ class views_rules_plugin_display_rules extends views_plugin_display {
    */
   function options_validate(&$form, &$form_state) {
     parent::options_validate($form, $form_state);
+    $options = $this->extract_enabled_options($form_state['values']['options']);
 
-    // TODO
+    $errors = array();
+    switch ($form_state['section']) {
+      case 'rules_parameter':
+        $errors = $this->parameter_options_validate($options);
+        break;
+
+      case 'rules_variables':
+        $errors = $this->variables_options_validate($options);
+        break;
+    }
+
+    foreach ($errors as $error) {
+      $element = &$form[$error['id']];
+      if (isset($error['element'])) {
+        $element = &$element[$error['element']];
+      }
+      form_error($element, $error['message']);
+    }
   }
 
   /**
@@ -89,8 +107,8 @@ class views_rules_plugin_display_rules extends views_plugin_display {
     switch ($form_state['section']) {
       case 'rules_parameter':
       case 'rules_variables':
-        $option = $form_state['values']['options'];
-        $this->set_option($form_state['section'], $option);
+        $options = $form_state['values']['options'];
+        $this->set_option($form_state['section'], $options);
         break;
     }
   }
@@ -101,7 +119,17 @@ class views_rules_plugin_display_rules extends views_plugin_display {
   function validate() {
     $errors = parent::validate();
 
-    // TODO
+    $options = $this->get_option('rules_parameter');
+    $options = $this->extract_enabled_options($options);
+    if ($this->parameter_options_validate($options)) {
+      $errors[] = t('Rules parameters are not correctly configured.');
+    }
+
+    $options = $this->get_option('rules_variables');
+    $options = $this->extract_enabled_options($options);
+    if ($this->variables_options_validate($options)) {
+      $errors[] = t('Rules row variables are not correctly configured.');
+    }
 
     return $errors;
   }
@@ -161,7 +189,7 @@ class views_rules_plugin_display_rules extends views_plugin_display {
       $option_variables = (array) $this->get_option('rules_variables');
       foreach ($this->get_field_labels() as $variable => $label) {
         $option_variables += array($variable => array());
-        $form[$variable] = $this->get_variable_form($variable, $label, $option_variables[$variable]);
+        $form[$variable] = $this->get_variable_form($variable, $label, $option_variables[$variable], TRUE);
       }
     }
     // Show notice for default entity type.
@@ -191,14 +219,36 @@ class views_rules_plugin_display_rules extends views_plugin_display {
       'type' => NULL,
       'label' => $label,
       'name' => $name,
+      'enabled' => TRUE,
     );
 
     $form = array(
       '#type' => 'fieldset',
       '#title' => $label,
     );
+    if (!$optional) {
+      $form['enabled'] = array(
+        '#type' => 'value',
+        '#value' => TRUE,
+      );
+    }
+    else {
+      $enabled_css_id = drupal_html_id('views-rules-variable-enabled');
+      $form['enabled'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enabled'),
+        '#default_value' => $info['enabled'],
+        '#description' => t('Uncheck this box to make this variable unavailable for use in Rules.'),
+        '#attributes' => array('id' => $enabled_css_id),
+      );
+    }
     $form['_pre_wrap'] = array(
       '#markup' => '<div class="clearfix">',
+    );
+    $states = !isset($enabled_css_id) ? NULL : array(
+      'visible' => array(
+        '#' . $enabled_css_id => array('checked' => TRUE),
+      ),
     );
     $form['type'] = array(
       '#type' => 'select',
@@ -207,6 +257,7 @@ class views_rules_plugin_display_rules extends views_plugin_display {
       '#default_value' => $info['type'],
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
+      '#states' => $states,
     );
     $form['label'] = array(
       '#type' => 'textfield',
@@ -215,6 +266,7 @@ class views_rules_plugin_display_rules extends views_plugin_display {
       '#size' => 25,
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
+      '#states' => $states,
     );
     $form['name'] = array(
       '#type' => 'textfield',
@@ -223,6 +275,7 @@ class views_rules_plugin_display_rules extends views_plugin_display {
       '#size' => 25,
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
+      '#states' => $states,
     );
     $form['_post_wrap'] = array(
       '#markup' => '</div>',
@@ -232,19 +285,84 @@ class views_rules_plugin_display_rules extends views_plugin_display {
   }
 
   /**
-   * Validates parameter options.
+   * Extracts options configured as enabled.
    */
-  function parameter_options_validate($options) {
-    // TODO
-    return FALSE;
+  function extract_enabled_options($options) {
+    $enabled_options = array();
+    foreach ($options as $id => $option) {
+      if (!empty($option['enabled'])) {
+        $enabled_options[$id] = $option;
+      }
+    }
+    return $enabled_options;
   }
 
   /**
    * Validates parameter options.
    */
-  function variables_validate_options($options) {
-    // TODO
-    return FALSE;
+  function parameter_options_validate($options) {
+    $errors = array();
+
+    if (array_diff_key($this->get_argument_labels(), $options)) {
+      $errors[] = t('Some arguments are not configured.');
+    }
+    $errors = array_merge($errors, $this->validate_machine_name($options));
+    $errors = array_merge($errors, $this->validate_unique_names($options));
+
+    return $errors;
+  }
+
+  /**
+   * Validates row variable options.
+   */
+  function variables_options_validate($options) {
+    $errors = array();
+
+    $options = $this->extract_enabled_options($options);
+    $errors = array_merge($errors, $this->validate_machine_name($options));
+    $errors = array_merge($errors, $this->validate_unique_names($options));
+
+    return $errors;
+  }
+
+  /**
+   * Validates variable uniqueness.
+   */
+  function validate_machine_name($options) {
+    $errors = array();
+    foreach ($options as $id => $info) {
+      $name = $info['name'];
+      if (!preg_match('!^[a-z0-9_]+$!', $name)) {
+        $errors[] = array(
+          'id' => $id,
+          'element' => 'name',
+          'message' => t('The machine-readable name %name contains invalid characters (valid characters are lowercase letters, numbers, and underscores).'),
+        );
+      }
+    }
+    return $errors;
+  }
+
+  /**
+   * Validates variable uniqueness.
+   */
+  function validate_unique_names($options) {
+    $errors = array();
+    $names = array();
+    foreach ($options as $id => $info) {
+      $name = $info['name'];
+      if (isset($names[$name])) {
+        $errors[] = array(
+          'id' => $id,
+          'element' => 'name',
+          'message' => t('The machine-readable name %name is already taken.', array('%name' => $name)),
+        );
+      }
+      else {
+        $names[$name] = $name;
+      }
+    }
+    return $errors;
   }
 
   /**
