@@ -405,11 +405,3 @@ class views_rules_plugin_display_rules extends views_plugin_display {
     return array();
   }
 }
-
-/**
- * Validates a variable machine name.
- */
-function views_rules_element_machine_name_validate($element, &$form_state) {
-  module_load_include('inc', 'rules', 'ui/ui.forms');
-  rules_ui_element_machine_name_validate($element, $form_state);
-}
