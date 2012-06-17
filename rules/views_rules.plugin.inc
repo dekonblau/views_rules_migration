@@ -16,11 +16,6 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     // TODO
   }
 
-  public function pluginParameterInfo() {
-    // TODO
-    return array();
-  }
-
   public function integrityCheck() {
     parent::integrityCheck();
 
@@ -40,8 +35,13 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     }
   }
 
-  public function evaluateViewRow(array $variables) {
+  public function evaluateRow(array $data) {
     // TODO
+  }
+
+  public function pluginParameterInfo() {
+    // TODO
+    return array();
   }
 
   protected function stateVariables($element = NULL) {
@@ -69,5 +69,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
  * Interface for an iterable Rules plugin for calling back from Views.
  */
 interface ViewsRulesIterable {
-  // TODO
+  /**
+   * Evaluates a view row in the loop.
+   */
+  public function evaluateRow(array $data);
 }
