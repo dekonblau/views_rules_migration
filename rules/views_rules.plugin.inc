@@ -9,7 +9,7 @@
  */
 class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable {
 
-  protected $itemName = 'views loop';
+  protected $itemName = 'view loop';
 
   public function __construct($settings = array(), $variables = NULL) {
     $this->setUp();
