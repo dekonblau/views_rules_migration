@@ -25,6 +25,35 @@ function views_rules_data_type_options() {
 }
 
 /**
+ * Lists options for all view displays for use as rules iterators.
+ *
+ * Each display is identified by the view name, followed by a colon (':'), and
+ * then the display name.
+ */
+function views_rules_list_iterators($grouped = TRUE) {
+  $applicable_displays = views_get_applicable_views('rules iterator');
+  $options = array();
+  foreach ($applicable_displays as $view_display) {
+    /** @var $view view */
+    list($view, $display_name) = $view_display;
+    $view_label = $view->get_human_name();
+    if (empty($view_label)) {
+      $view_label = $view->name;
+    }
+    $display_label = $view->display_handler->display->display_title;
+    // Add display as option.
+    $display_id = $view->name . ':' . $display_name;
+    if ($grouped) {
+      $options[$view_label][$display_id] = $display_label;
+    }
+    else {
+      $options[$display_id] = t('@view_title: @display_title', array('@view_title' => $view_label, '@display_title' => $display_label));
+    }
+  }
+  return $options;
+}
+
+/**
  * Implements hook_views_api().
  */
 function views_rules_views_api() {
@@ -39,7 +68,7 @@ function views_rules_views_api() {
 function views_rules_views_plugins() {
   return array(
     'display' => array(
-      'rules' => array(
+      'views_rules' => array(
         'title' => t('Rules'),
         'help' => t('Provide a display for using results in Rules.'),
         'handler' => 'views_rules_plugin_display_rules',
@@ -48,6 +77,7 @@ function views_rules_views_plugins() {
         'uses fields' => TRUE,
         'accept attachments' => FALSE,
         'admin' => t('Rules'),
+        'rules iterator' => TRUE,
       ),
     ),
   );

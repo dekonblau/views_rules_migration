@@ -11,13 +11,38 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
 
   protected $itemName = 'view loop';
 
-  public function __construct($settings = array(), $variables = NULL) {
+  protected $viewName;
+  protected $displayName;
+  protected $view;
+
+  public function __construct($viewName = NULL, $displayName = NULL, $settings = array()) {
+    $this->viewName = $viewName;
+    $this->displayName = $displayName;
+    $this->settings = (array) $settings + $this->settings;
     $this->setUp();
-    // TODO
+  }
+
+  public function __sleep() {
+    return parent::__sleep() + array('viewName' => 'viewName', 'displayName' => 'displayName');
+  }
+
+  protected function setUp() {
+    parent::setUp();
+    $this->setUpDisplay();
+  }
+
+  public function setUpDisplay() {
+    if (!$this->view && $this->viewName && $this->displayName) {
+      $view = views_get_view($this->viewName);
+      $view->set_display($this->displayName);
+      $this->view = $view;
+    }
   }
 
   public function integrityCheck() {
     parent::integrityCheck();
+
+    // TODO Check view display is an iterator.
 
     // TODO Check variable names.
     // $this->checkVarName($this->settings['...']);
