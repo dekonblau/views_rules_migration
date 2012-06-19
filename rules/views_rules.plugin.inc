@@ -80,6 +80,7 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
    * @return view
    */
   public function getView() {
+    $this->forceSetUp();
     return $this->view;
   }
 
@@ -95,9 +96,9 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
 
   public function label() {
     $view = $this->getView();
-    return t('Views loop: @view - %display', array(
+    return t('Views loop: @view - @display', array(
       '@view' => ($viewLabel = $view->get_human_name()) ? $viewLabel : $view->name,
-      '%display' => $view->display_handler->display->display_title,
+      '@display' => $view->display_handler->display->display_title,
     ));
   }
 
