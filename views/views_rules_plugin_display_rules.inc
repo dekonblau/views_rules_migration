@@ -330,7 +330,8 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       $parameter_names[] = $parameter['name'];
     }
     $errors = array_merge($errors, $this->validate_unique_names($options, $parameter_names));
-    // TODO Ensure enabled options are fully specified.
+    // Ensure enabled options are fully specified.
+    $errors = array_merge($errors, $this->validate_complete_variables($options));
 
     return $errors;
   }
@@ -370,6 +371,31 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       }
       else {
         $names[$name] = $name;
+      }
+    }
+    return $errors;
+  }
+
+  /**
+   * Validates variable info completeness.
+   */
+  function validate_complete_variables($options, $check_enabled = FALSE) {
+    $errors = array();
+    $labels = $this->get_field_labels();
+    foreach ($options as $id => $info) {
+      if (!$check_enabled || !empty($info['enabled'])) {
+        foreach (array('type', 'label', 'name') as $element) {
+          if (!isset($info[$element]) || $info[$element] === '') {
+            $errors[] = array(
+              'id' => $id,
+              'element' => $element,
+              'message' => t('The variable @element for %var is missing.', array(
+                '@element' => $element,
+                '%var' => $labels[$id],
+              )),
+            );
+          }
+        }
       }
     }
     return $errors;
