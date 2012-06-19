@@ -42,12 +42,31 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   public function integrityCheck() {
     parent::integrityCheck();
 
-    // TODO Check view display is an iterator.
+    // Check view is configured.
+    $view = $this->getView();
+    if (!$view) {
+      throw new RulesIntegrityException(t('%plugin: View display is not configured.', array('%plugin' => $this->getPluginName())), $this);
+    }
 
-    // TODO Check variable names.
-    // $this->checkVarName($this->settings['...']);
+    // Check view display is an iterator.
+    $display = $view->display_handler;
+    if (!$display instanceof views_rules_iterator) {
+      throw new RulesIntegrityException(t('%plugin: Configured view display is not a Rules iterator.', array('%plugin' => $this->getPluginName())), $this);
+    }
 
-    // TODO Check variables match the view.
+    // Validate view display.
+    /** @var $display views_plugin_display */
+    if (!$view->validate()) {
+      throw new RulesIntegrityException(t('%plugin: Configured view does not validate.', array('%plugin' => $this->getPluginName())), $this);
+    }
+
+    // Check row variables.
+    /** @var $display views_rules_iterator */
+    foreach ($display->get_rules_variable_info() as $name => $info) {
+      if (isset($this->settings[$name . ':var'])) {
+        $this->checkVarName($this->settings[$name . ':var']);
+      }
+    }
   }
 
   public function evaluate(RulesState $state) {
@@ -72,8 +91,20 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   }
 
   protected function stateVariables($element = NULL) {
-    // TODO
-    return parent::stateVariables($element);
+    $variables = parent::stateVariables($element);
+
+    // Add row variables to state.
+    if ($iterator = $this->getViewIterator()) {
+      $settings = $this->settings;
+      foreach ($iterator->get_rules_variable_info() as $name => $info) {
+        $variables[$settings[$name . ':var']] = array(
+          'type' => $info['type'],
+          'label' => $settings[$name . ':label'],
+        );
+      }
+    }
+
+    return $variables;
   }
 
   /**
