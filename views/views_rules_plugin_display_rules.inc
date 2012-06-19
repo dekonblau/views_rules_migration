@@ -321,6 +321,9 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   function variables_options_validate($options) {
     $errors = array();
 
+    if (array_diff_key($this->get_field_labels(), $options)) {
+      $errors[] = t('Some fields are not configured.');
+    }
     $options = $this->extract_enabled_options($options);
     $errors = array_merge($errors, $this->validate_machine_name($options));
     // Send parameter names to unique names validation to make sure variable
