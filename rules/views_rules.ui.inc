@@ -27,21 +27,6 @@ class ViewsRulesLoopFactoryUI extends RulesFactoryUI {
         '#required' => TRUE,
       );
     }
-    else {
-      // Display view display name.
-      /** @var $view view */
-      $view = $form_state['rules_factory_created']->getView();
-      $form['view_name'] = array(
-        '#type' => 'item',
-        '#title' => t('View'),
-        '#markup' => check_plain(($viewLabel = $view->get_human_name()) ? $viewLabel : $view->name),
-      );
-      $form['display_name'] = array(
-        '#type' => 'item',
-        '#title' => t('Display'),
-        '#markup' => check_plain($view->display_handler->display->display_title),
-      );
-    }
   }
 
   /**
@@ -60,6 +45,72 @@ class ViewsRulesLoopFactoryUI extends RulesFactoryUI {
  * Views loop administrative UI.
  */
 class ViewsRulesLoopUI extends RulesActionContainerUI {
+  public function form(&$form, &$form_state, $options = array(), $iterator = NULL) {
+    parent::form($form, $form_state, $options, $iterator);
+
+    // Build row variable forms.
+    /** @var $display views_rules_iterator */
+    if ($display = $this->element->getViewIterator()) {
+      $settings = $this->element->settings;
+      foreach ($display->get_rules_variable_info() as $var_name => $var_info) {
+        $form['views_row'][$var_name] = array(
+          '#type' => 'fieldset',
+          '#title' => check_plain($var_info['label']),
+          '#description' => filter_xss(isset($var_info['description']) ? $var_info['description'] : ''),
+        );
+        $form['views_row'][$var_name]['label'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Variable label'),
+          '#default_value' => isset($settings[$var_name . ':label']) ? $settings[$var_name . ':label'] : $var_info['label'],
+          '#required' => TRUE,
+        );
+        $form['views_row'][$var_name]['var'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Variable name'),
+          '#default_value' => isset($settings[$var_name . ':var']) ? $settings[$var_name . ':var'] : $var_name,
+          '#description' => t('The variable name must contain only lowercase letters, numbers, and underscores and must be unique in the current scope.'),
+          '#element_validate' => array('rules_ui_element_machine_name_validate'),
+          '#required' => TRUE,
+        );
+      }
+      if (element_children($form['views_row'])) {
+        $help = '<div class="description">' . t('Adjust the names and labels of row variables (from the view) available in each iteration of the view loop, but note that renaming of already utilizied variables invalidates the existing uses.') . '</div>';
+        $form['views_row'] += array(
+          '#tree' => TRUE,
+          '#prefix' => '<h4 class="rules-form-heading">' . t('Row variables') . '</h4>' . $help,
+        );
+      }
+    }
+  }
+
+  function form_extract_values($form, &$form_state) {
+    parent::form_extract_values($form, $form_state);
+    $form_values = RulesPluginUI::getFormStateValues($form, $form_state);
+
+    // Extract row variable settings.
+    /** @var $display views_rules_iterator */
+    $display = $this->element->getViewIterator();
+    foreach ($display->get_rules_variable_info() as $var_name => $var_info) {
+      $this->element->settings[$var_name . ':var'] = $form_values['views_row'][$var_name]['var'];
+      $this->element->settings[$var_name . ':label'] = $form_values['views_row'][$var_name]['label'];
+    }
+  }
+
+  public function form_validate($form, &$form_state) {
+    parent::form_validate($form, $form_state);
+
+    // Validate row variable names.
+    $vars = $this->element->availableVariables();
+    /** @var $display views_rules_iterator */
+    $display = $this->element->getViewIterator();
+    foreach ($display->get_rules_variable_info() as $var_name => $var_info) {
+      $name = $this->element->settings[$var_name . ':var'];
+      if (isset($vars[$name])) {
+        form_error($form['views_row'][$var_name]['var'], t('The variable name %name is already taken.', array('%name' => $name)));
+      }
+    }
+  }
+
   public function operations() {
     $ops = parent::operations();
     if (module_exists('views_ui')) {
@@ -77,8 +128,25 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
   public function buildContent() {
     $content = parent::buildContent();
 
-    // Format label with HTML tags.
-    $content['label']['#markup'] = $this->element->label();
+    // Build row variables.
+    /** @var $display views_rules_iterator */
+    $display = $this->element->getViewIterator();
+    $content['description']['views_row'] = array(
+      '#caption' => t('Row variables'),
+      '#theme' => 'rules_content_group',
+    );
+    foreach ($display->get_rules_variable_info() as $var_name => $var_info) {
+      if (isset($this->element->settings[$var_name . ':var'])) {
+        $content['description']['views_row'][$var_name] = array(
+          '#theme' => 'rules_variable_view',
+          '#info' => array(
+            'type' => $var_info['type'],
+            'label' => $this->element->settings[$var_name . ':label'],
+          ),
+          '#name' => $this->element->settings[$var_name . ':var'],
+        );
+      }
+    }
 
     return $content;
   }
