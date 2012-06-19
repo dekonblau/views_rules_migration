@@ -440,4 +440,14 @@ interface views_rules_iterator {
    * @param ViewsRulesIterable $iterable
    */
   function execute_iterator($iterator);
+
+  /**
+   * Returns parameter info for use with Rules.
+   */
+  function get_rules_parameter_info();
+
+  /**
+   * Returns row variable info for use with Rules.
+   */
+  function get_rules_variable_info();
 }
