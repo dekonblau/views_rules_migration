@@ -255,6 +255,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       '#title' => t('Data type'),
       '#options' => views_rules_data_type_options(),
       '#default_value' => $info['type'],
+      '#required' => empty($optional),
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
       '#states' => $states,
@@ -264,6 +265,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       '#title' => t('Label'),
       '#default_value' => $info['label'],
       '#size' => 25,
+      '#required' => empty($optional),
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
       '#states' => $states,
@@ -273,6 +275,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       '#title' => t('Name'),
       '#default_value' => $info['name'],
       '#size' => 25,
+      '#required' => empty($optional),
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
       '#states' => $states,
@@ -321,6 +324,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $options = $this->extract_enabled_options($options);
     $errors = array_merge($errors, $this->validate_machine_name($options));
     $errors = array_merge($errors, $this->validate_unique_names($options));
+    // TODO Ensure enabled options are fully specified.
 
     return $errors;
   }
