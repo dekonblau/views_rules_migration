@@ -31,7 +31,7 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     $this->setUpDisplay();
   }
 
-  public function setUpDisplay() {
+  protected function setUpDisplay() {
     if (!$this->view && $this->viewName && $this->displayName) {
       $view = views_get_view($this->viewName);
       $view->set_display($this->displayName);
@@ -65,7 +65,9 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   }
 
   public function pluginParameterInfo() {
-    // TODO
+    if ($iterator = $this->getViewIterator()) {
+      return $iterator->get_rules_parameter_info();
+    }
     return array();
   }
 
@@ -74,8 +76,29 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     return parent::stateVariables($element);
   }
 
+  /**
+   * @return view
+   */
+  public function getView() {
+    return $this->view;
+  }
+
+  /**
+   * @return views_rules_iterator
+   */
+  public function getViewIterator() {
+    if ($view = $this->getView()) {
+      return $view->display_handler;
+    }
+    return NULL;
+  }
+
   public function label() {
-    return !empty($this->label) ? $this->label : t('Views loop');
+    $view = $this->getView();
+    return t('Views loop: @view - %display', array(
+      '@view' => ($viewLabel = $view->get_human_name()) ? $viewLabel : $view->name,
+      '%display' => $view->display_handler->display->display_title,
+    ));
   }
 
   protected function exportSettings() {
