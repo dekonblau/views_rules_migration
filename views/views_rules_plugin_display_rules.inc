@@ -122,13 +122,13 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $options = $this->get_option('rules_parameter');
     $options = $this->extract_enabled_options($options);
     if ($this->parameter_options_validate($options)) {
-      $errors[] = t('Rules parameters are not correctly configured.');
+      $errors[] = t('Parameters in display "@display" are not correctly configured.', array('@display' => $this->display->display_title));
     }
 
     $options = $this->get_option('rules_variables');
     $options = $this->extract_enabled_options($options);
     if ($this->variables_options_validate($options)) {
-      $errors[] = t('Rules row variables are not correctly configured.');
+      $errors[] = t('Row variables in display "@display" are not correctly configured.', array('@display' => $this->display->display_title));
     }
 
     return $errors;
@@ -254,6 +254,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       '#type' => 'select',
       '#title' => t('Data type'),
       '#options' => views_rules_data_type_options(),
+      '#empty_value' => '',
       '#default_value' => $info['type'],
       '#required' => empty($optional),
       '#prefix' => '<div class="views-left-30">',
