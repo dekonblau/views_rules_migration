@@ -5,43 +5,20 @@
  */
 
 /**
- * Views loop administrative UI.
+ * Factory UI for a view loop.
  */
-class ViewsRulesLoopUI extends RulesActionContainerUI {
+class ViewsRulesLoopFactoryUI extends RulesFactoryUI {
   /**
-   * @var ViewsRulesLoop
+   * Builds the factory form for creating an instance of the plugin.
+   *
+   * @param $form
+   *   The form array to add the factory form to.
+   * @param $form_state
+   *   The current form state.
    */
-  protected $element;
-
-  /**
-   * Overrides the default form to integrate with Views.
-   */
-  public function form(&$form, &$form_state, $options = array(), $iterator = NULL) {
-    if (!empty($options['init']) && !empty($options['button']) && !$this->property('view')) {
-      // Build iterator plugin form.
-      $form['#views_iterator'] = TRUE;
-    }
-    $this->iteratorForm($form, $form_state, $options);
-
-    // Add default form.
-    parent::form($form, $form_state, $options, $iterator);
-  }
-
-  /**
-   * Overrides the parent validator to validate iterator form.
-   */
-  public function form_validate($form, &$form_state) {
-    if (!empty($form['#views_iterator'])) {
-      $this->iteratorFormValidate($form, $form_state);
-    }
-  }
-
-  /**
-   * Builds the plugin setup form.
-   */
-  protected function iteratorForm(&$form, &$form_state, $options) {
-    // Add view selector if view display has not been set.
-    if (!$view = $this->property('view')) {
+  public function factoryForm(&$form, &$form_state, $options = array()) {
+    if (empty($options['init'])) {
+      // Add view selector.
       $form['display'] = array(
         '#type' => 'select',
         '#title' => t('Views iterator display'),
@@ -49,48 +26,60 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
         '#description' => t('Select the view display to use for looping. To add a display to the list, add a "Rules" display to a view.'),
         '#required' => TRUE,
       );
-      return;
     }
-
-    // Display view display name.
-    /** @var $view view */
-    $form['view_name'] = array(
-      '#type' => 'item',
-      '#title' => t('View'),
-      '#markup' => check_plain(($viewLabel = $view->get_human_name()) ? $viewLabel : $view->name),
-    );
-    $form['display_name'] = array(
-      '#type' => 'item',
-      '#title' => t('Display'),
-      '#markup' => check_plain($view->display_handler->display->display_title),
-    );
-  }
-
-  /**
-   * Validates the plugin setup form.
-   */
-  protected function iteratorFormValidate(&$form, &$form_state) {
-    if (!empty($form_state['values']['display'])) {
-      // Finalize setup.
-      $this->iteratorFormFinalize($form, $form_state);
-      unset($form['#views_iterator']);
-      // Rebuild form to add variable forms.
-      $form_state['rebuild'] = TRUE;
+    else {
+      // Display view display name.
+      /** @var $view view */
+      $view = $form_state['rules_factory_created']->getView();
+      $form['view_name'] = array(
+        '#type' => 'item',
+        '#title' => t('View'),
+        '#markup' => check_plain(($viewLabel = $view->get_human_name()) ? $viewLabel : $view->name),
+      );
+      $form['display_name'] = array(
+        '#type' => 'item',
+        '#title' => t('Display'),
+        '#markup' => check_plain($view->display_handler->display->display_title),
+      );
     }
   }
 
   /**
-   * Sets up the plugin given submitted values.
+   * Processes the factory form submission as built in
+   * RulesFactoryUIInterface::factoryForm(). Set 'rules_factory_created' to a
+   * created instance for configuration to begin.
    */
-  protected function iteratorFormFinalize(&$form, &$form_state) {
-    if ($this->element instanceof ViewsRulesLoop) {
-      $display = $form_state['values']['display'];
-      list($viewName, $displayName) = explode(':', $display, 2);
-      $loopViewName = &$this->property('viewName');
-      $loopDisplayName = &$this->property('displayName');
-      $loopViewName = $viewName;
-      $loopDisplayName = $displayName;
-      $this->element->setUpDisplay();
+  public function factoryFormSubmit(&$form, &$form_state, $options = array()) {
+    $display = $form_state['values']['display'];
+    list($viewName, $displayName) = explode(':', $display, 2);
+    $form_state['rules_factory_created'] = new ViewsRulesLoop($viewName, $displayName);
+  }
+}
+
+/**
+ * Views loop administrative UI.
+ */
+class ViewsRulesLoopUI extends RulesActionContainerUI {
+  public function operations() {
+    $ops = parent::operations();
+    if (module_exists('views_ui')) {
+      /** @var $view view */
+      $view = $this->element->getView();
+      $link = array(
+        'title' => t('edit view display'),
+        'href' => 'admin/structure/views/view/' . $view->name . '/edit/' . $view->current_display,
+      );
+      array_unshift($ops['#links'], $link);
     }
+    return $ops;
+  }
+
+  public function buildContent() {
+    $content = parent::buildContent();
+
+    // Format label with HTML tags.
+    $content['label']['#markup'] = $this->element->label();
+
+    return $content;
   }
 }
