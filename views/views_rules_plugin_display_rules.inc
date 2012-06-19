@@ -323,7 +323,13 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
 
     $options = $this->extract_enabled_options($options);
     $errors = array_merge($errors, $this->validate_machine_name($options));
-    $errors = array_merge($errors, $this->validate_unique_names($options));
+    // Send parameter names to unique names validation to make sure variable
+    // names do not conflict with parameter names.
+    $parameter_names = array();
+    foreach (((array) $this->get_option('rules_parameter')) as $parameter) {
+      $parameter_names[] = $parameter['name'];
+    }
+    $errors = array_merge($errors, $this->validate_unique_names($options, $parameter_names));
     // TODO Ensure enabled options are fully specified.
 
     return $errors;
@@ -350,9 +356,9 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   /**
    * Validates variable uniqueness.
    */
-  function validate_unique_names($options) {
+  function validate_unique_names($options, $additional = array()) {
     $errors = array();
-    $names = array();
+    $names = empty($additional) ? array() : array_combine($additional, $additional);
     foreach ($options as $id => $info) {
       $name = $info['name'];
       if (isset($names[$name])) {
