@@ -36,6 +36,11 @@ function views_rules_list_iterators($grouped = TRUE) {
   foreach ($applicable_displays as $view_display) {
     /** @var $view view */
     list($view, $display_name) = $view_display;
+    // Validate display.
+    if (!$view->validate()) {
+      continue;
+    }
+    // Build option.
     $view_label = $view->get_human_name();
     if (empty($view_label)) {
       $view_label = $view->name;
