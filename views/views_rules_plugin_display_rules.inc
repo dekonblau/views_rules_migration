@@ -120,13 +120,11 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $errors = parent::validate();
 
     $options = $this->get_option('rules_parameter');
-    $options = $this->extract_enabled_options($options);
     if ($this->parameter_options_validate($options)) {
       $errors[] = t('Parameters in display "@display" are not correctly configured.', array('@display' => $this->display->display_title));
     }
 
     $options = $this->get_option('rules_variables');
-    $options = $this->extract_enabled_options($options);
     if ($this->variables_options_validate($options)) {
       $errors[] = t('Row variables in display "@display" are not correctly configured.', array('@display' => $this->display->display_title));
     }
@@ -225,6 +223,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $form = array(
       '#type' => 'fieldset',
       '#title' => $label,
+      '#tree' => TRUE,
     );
     if (!$optional) {
       $form['enabled'] = array(
