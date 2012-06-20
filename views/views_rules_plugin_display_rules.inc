@@ -468,6 +468,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    */
   function execute_iterator($arguments, $state, $iterable) {
     // Prepares the view.
+    $this->view->set_display($this->display->id);
     $this->view->pre_execute($arguments);
 
     // Iterate view result rows.

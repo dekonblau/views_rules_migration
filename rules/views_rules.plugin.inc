@@ -34,8 +34,9 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   protected function setUpDisplay() {
     if (!$this->view && $this->viewName && $this->displayName) {
       $view = views_get_view($this->viewName);
-      $view->set_display($this->displayName);
-      $this->view = $view;
+      if ($view->set_display($this->displayName)) {
+        $this->view = $view;
+      }
     }
   }
 
