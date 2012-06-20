@@ -113,7 +113,7 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
 
   public function operations() {
     $ops = parent::operations();
-    if (module_exists('views_ui')) {
+    if (module_exists('views_ui') && user_access('administer views')) {
       /** @var $view view */
       $view = $this->element->getView();
       $link = array(
