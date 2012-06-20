@@ -40,6 +40,10 @@ function views_rules_list_iterators($grouped = TRUE) {
     if (!$view->validate()) {
       continue;
     }
+    // Check user access.
+    if (!$view->access($display_name)) {
+      continue;
+    }
     // Build option.
     $view_label = $view->get_human_name();
     if (empty($view_label)) {
