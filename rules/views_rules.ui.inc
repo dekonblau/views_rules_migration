@@ -151,3 +151,34 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
     return $content;
   }
 }
+
+/**
+ * Alters action form for views_rules_collect_rows().
+ */
+function views_rules_collect_rows_form_alter(&$form, &$form_state, $options, RulesAbstractPlugin $element) {
+  if (!empty($options['init']) && !isset($form_state['rules_element_step'])) {
+    $form_state['rules_element_step'] = 1;
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Continue'),
+      '#limit_validation_errors' => array(array('parameter', 'display')),
+      '#submit' => array('rules_form_submit_rebuild'),
+    );
+  }
+  else {
+    // Add parameter fieldset label.
+    if (array_diff(element_children($form['parameter']), array('display'))) {
+      $help = '<div class="description">' . t('Adjust the names and labels of row variables (from the view) available in each iteration of the view loop, but note that renaming of already utilizied variables invalidates the existing uses.') . '</div>';
+      $form['parameter']['display']['#suffix'] = '<h4 class="rules-form-heading">' . t('Parameters') . '</h4>' . $help;
+    }
+    // Change the display parameter to be not editable any more.
+    $form['parameter']['display']['settings']['#access'] = FALSE;
+    $options = views_rules_list_iterators(FALSE);
+    $display_label = isset($options[$element->settings['display']]) ? $options[$element->settings['display']] : '';
+    $form['parameter']['display']['info'] = array(
+      '#prefix' => '<p>',
+      '#markup' => t('<strong>Selected view display:</strong> %selector', array('%selector' => $display_label)),
+      '#suffix' => '</p>',
+    );
+  }
+}
