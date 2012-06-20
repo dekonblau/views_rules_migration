@@ -59,6 +59,16 @@ function views_rules_list_iterators($grouped = TRUE) {
 }
 
 /**
+ * Loads a view with the display ID as given by views_rules_list_iterators().
+ */
+function views_rules_get_view($view_display_id) {
+  list($view_name, $display_name) = explode(':', $view_display_id, 2);
+  if (($view = views_get_view($view_name)) && $view->set_display($display_name)) {
+    return $view;
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function views_rules_views_api() {
