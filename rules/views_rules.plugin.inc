@@ -85,7 +85,12 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
         }
         // Execute view.
         $this->viewLoopState = $state;
-        $iterator->execute_iterator($arguments, $this);
+        try {
+          $iterator->execute_iterator($arguments, $this);
+        }
+        catch (views_rules_iterator_exception $e) {
+          throw new RulesEvaluationException($e->getMessage(), array(), $this);
+        }
         unset($this->viewLoopState);
       }
       else {

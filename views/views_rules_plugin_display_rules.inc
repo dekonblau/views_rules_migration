@@ -464,6 +464,8 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    *
    * @param array $arguments
    * @param ViewsRulesIterable $iterable
+   * @throws views_rules_iterator_exception
+   *   If an error occurred while executing the view.
    */
   function execute_iterator($arguments, $iterable) {
     // Prepares the view.
@@ -478,16 +480,18 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
 
   /**
    * @param ViewsRulesIterable $iterable
+   * @throws views_rules_iterator_exception
+   *   If an error occurred while executing the view.
    */
   function iterate_rows($iterable) {
     // Execute view.
     $this->view->execute($this->view->current_display);
     // Check display has not failed.
     if (!empty($this->build_info['fail'])) {
-      return;
+      throw new views_rules_iterator_exception('Failed to build view display.');
     }
     if (!empty($this->view->build_info['denied'])) {
-      return;
+      throw new views_rules_iterator_exception('Access to view display is denied.');
     }
     // Iterate through results.
     $option_variables = $this->extract_enabled_options((array) $this->get_option('rules_variables'));
@@ -513,6 +517,8 @@ interface views_rules_iterator {
    *
    * @param array $arguments
    * @param ViewsRulesIterable $iterable
+   * @throws views_rules_iterator_exception
+   *   If an error occurred while executing the view.
    */
   function execute_iterator($arguments, $iterable);
 
@@ -526,3 +532,8 @@ interface views_rules_iterator {
    */
   function get_rules_variable_info();
 }
+
+/**
+ * Exception thrown during view iterator execution.
+ */
+class views_rules_iterator_exception extends Exception {}
