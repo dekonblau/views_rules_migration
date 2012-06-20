@@ -122,10 +122,12 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     if ($iterator = $this->getViewIterator()) {
       $settings = $this->settings;
       foreach ($iterator->get_rules_variable_info() as $name => $info) {
-        $variables[$settings[$name . ':var']] = array(
-          'type' => $info['type'],
-          'label' => $settings[$name . ':label'],
-        );
+        if (isset($settings[$name . ':var'])) {
+          $variables[$settings[$name . ':var']] = array(
+            'type' => $info['type'],
+            'label' => $settings[$name . ':label'],
+          );
+        }
       }
     }
 
