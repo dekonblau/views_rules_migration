@@ -15,6 +15,11 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   protected $displayName;
   protected $view;
 
+  /**
+   * @var RulesState
+   */
+  protected $viewLoopState;
+
   public function __construct($viewName = NULL, $displayName = NULL, $settings = array()) {
     $this->viewName = $viewName;
     $this->displayName = $displayName;
@@ -79,7 +84,9 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
           $arguments[] = $this->getArgument($name, $info, $state);
         }
         // Execute view.
-        $iterator->execute_iterator($arguments, $state, $this);
+        $this->viewLoopState = $state;
+        $iterator->execute_iterator($arguments, $this);
+        unset($this->viewLoopState);
       }
       else {
         throw new RulesEvaluationException('Unable to evaluate invalid view iterator.', array(), $this);
@@ -91,9 +98,9 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     }
   }
 
-  public function evaluateRow(RulesState $state, array $data) {
+  public function evaluateRow(array $data) {
     // Clone state to evaluate children in a sandbox.
-    $rowState = clone $state;
+    $rowState = clone $this->viewLoopState;
 
     // Fill in state data.
     foreach ($this->getViewIterator()->get_rules_variable_info() as $name => $info) {
@@ -102,7 +109,7 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     parent::evaluate($rowState);
 
     // Update variables from parent scope.
-    foreach ($state->variables as $key => &$value) {
+    foreach ($this->viewLoopState->variables as $key => &$value) {
       if (array_key_exists($key, $rowState->variables)) {
         $value = $rowState->variables[$key];
       }
@@ -180,5 +187,5 @@ interface ViewsRulesIterable {
   /**
    * Evaluates a view row in the loop.
    */
-  public function evaluateRow(RulesState $state, array $data);
+  public function evaluateRow(array $data);
 }

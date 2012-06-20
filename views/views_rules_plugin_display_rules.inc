@@ -463,25 +463,23 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    * Executes the iterator display.
    *
    * @param array $arguments
-   * @param RulesState $state
    * @param ViewsRulesIterable $iterable
    */
-  function execute_iterator($arguments, $state, $iterable) {
+  function execute_iterator($arguments, $iterable) {
     // Prepares the view.
     $this->view->set_display($this->display->id);
     $this->view->pre_execute($arguments);
 
     // Iterate view result rows.
-    $this->iterate_rows($state, $iterable);
+    $this->iterate_rows($iterable);
 
     $this->view->post_execute();
   }
 
   /**
-   * @param RulesState $state
    * @param ViewsRulesIterable $iterable
    */
-  function iterate_rows($state, $iterable) {
+  function iterate_rows($iterable) {
     // Execute view.
     $this->view->execute($this->view->current_display);
     // Check display has not failed.
@@ -501,7 +499,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
         $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $id);
       }
       // Evaluate row.
-      $iterable->evaluateRow($state, $data);
+      $iterable->evaluateRow($data);
     }
   }
 }
@@ -514,10 +512,9 @@ interface views_rules_iterator {
    * Executes the iterator display.
    *
    * @param array $arguments
-   * @param RulesState $state
    * @param ViewsRulesIterable $iterable
    */
-  function execute_iterator($arguments, $state, $iterable);
+  function execute_iterator($arguments, $iterable);
 
   /**
    * Returns parameter info for use with Rules.
