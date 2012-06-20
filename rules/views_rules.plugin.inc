@@ -108,8 +108,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     $rowState = clone $this->viewLoopState;
 
     // Fill in state data.
-    foreach ($this->getViewIterator()->get_rules_variable_info() as $name => $info) {
-      $rowState->addVariable($this->settings[$name . ':var'], $data[$name], $info);
+    foreach ($this->rowVariables() as $name => $info) {
+      $rowState->addVariable($name, $data[$info['source name']], $info);
     }
     parent::evaluate($rowState);
 
@@ -132,19 +132,27 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     $variables = parent::stateVariables($element);
 
     // Add row variables to state.
+    $variables += $this->rowVariables();
+
+    return $variables;
+  }
+
+  public function rowVariables() {
     if ($iterator = $this->getViewIterator()) {
-      $settings = $this->settings;
+      $variables = array();
       foreach ($iterator->get_rules_variable_info() as $name => $info) {
-        if (isset($settings[$name . ':var'])) {
-          $variables[$settings[$name . ':var']] = array(
+        if (isset($this->settings[$name . ':var'])) {
+          $variables[$this->settings[$name . ':var']] = array(
+            'source name' => $name,
             'type' => $info['type'],
-            'label' => $settings[$name . ':label'],
+            'label' => $this->settings[$name . ':label'],
           );
         }
       }
+      return $variables;
     }
-
-    return $variables;
+    // Return no variable.
+    return array();
   }
 
   /**
@@ -173,15 +181,38 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     ));
   }
 
+  protected function exportFlat() {
+    return $this->isRoot();
+  }
+
   protected function exportSettings() {
-    $export = parent::exportSettings();
-    // TODO
+    $export = array();
+    $export['VIEW'] = $this->viewName;
+    $export['DISPLAY'] = $this->displayName;
+    $export['ROW VARIABLES'] = array();
+    foreach ($this->rowVariables() as $name => $info) {
+      $export['ROW VARIABLES'][$info['source name']][$name] = $info['label'];
+    }
+    $export += parent::exportSettings();
     return $export;
   }
 
+  public function import(array $export) {
+    // Import view configuration before importing and setting up.
+    $pluginExport = reset($export);
+    $this->viewName = $pluginExport['VIEW'];
+    $this->displayName = $pluginExport['DISPLAY'];
+    $this->setUpDisplay();
+    // Import variables.
+    parent::import($export);
+  }
+
   protected function importSettings($export) {
+    foreach ($export['ROW VARIABLES'] as $name => $variable) {
+      $this->settings[$name . ':var'] = key($variable);
+      $this->settings[$name . ':label'] = current($variable);
+    }
     parent::importSettings($export);
-    // TODO
   }
 }
 
