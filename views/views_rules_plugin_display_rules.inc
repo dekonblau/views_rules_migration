@@ -493,12 +493,12 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     }
     // Iterate through results.
     $option_variables = $this->extract_enabled_options((array) $this->get_option('rules_variables'));
-    foreach ($this->view->result as $row) {
-      // TODO Build row data.
+    foreach ($this->view->result as $row_index => $row) {
+      // Build row data.
       $data = array();
       foreach ($option_variables as $id => $info) {
         $var_name = $info['name'];
-        // TODO
+        $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $id);
       }
       // Evaluate row.
       $iterable->evaluateRow($state, $data);
