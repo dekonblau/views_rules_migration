@@ -11,8 +11,6 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
 
   protected $itemName = 'view loop';
 
-  protected $viewName;
-  protected $displayName;
   protected $view;
 
   /**
@@ -21,14 +19,12 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   protected $viewLoopState;
 
   public function __construct($viewName = NULL, $displayName = NULL, $settings = array()) {
-    $this->viewName = $viewName;
-    $this->displayName = $displayName;
+    $this->info += array(
+      'view_name' => $viewName,
+      'display_name' => $displayName,
+    );
     $this->settings = (array) $settings + $this->settings;
     $this->setUp();
-  }
-
-  public function __sleep() {
-    return parent::__sleep() + array('viewName' => 'viewName', 'displayName' => 'displayName');
   }
 
   protected function setUp() {
@@ -37,9 +33,9 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   }
 
   protected function setUpDisplay() {
-    if (!$this->view && $this->viewName && $this->displayName) {
-      $view = views_get_view($this->viewName);
-      if ($view->set_display($this->displayName)) {
+    if (!$this->view && $this->info['view_name'] && $this->info['display_name']) {
+      $view = views_get_view($this->info['view_name']);
+      if ($view->set_display($this->info['display_name'])) {
         $this->view = $view;
       }
     }
@@ -187,8 +183,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
 
   protected function exportSettings() {
     $export = array();
-    $export['VIEW'] = $this->viewName;
-    $export['DISPLAY'] = $this->displayName;
+    $export['VIEW'] = $this->info['view_name'];
+    $export['DISPLAY'] = $this->info['display_name'];
     $export['ROW VARIABLES'] = array();
     foreach ($this->rowVariables() as $name => $info) {
       $export['ROW VARIABLES'][$info['source name']][$name] = $info['label'];
@@ -200,8 +196,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   public function import(array $export) {
     // Import view configuration before importing and setting up.
     $pluginExport = reset($export);
-    $this->viewName = $pluginExport['VIEW'];
-    $this->displayName = $pluginExport['DISPLAY'];
+    $this->info['view_name'] = $pluginExport['VIEW'];
+    $this->info['display_name'] = $pluginExport['DISPLAY'];
     $this->setUpDisplay();
     // Import variables.
     parent::import($export);
