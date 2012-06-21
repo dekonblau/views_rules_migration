@@ -73,6 +73,15 @@ function views_rules_get_view($view_display_id) {
 }
 
 /**
+ * Creates an instance of ViewsRulesLoop.
+ *
+ * This function is as used in a fluent interface.
+ */
+function views_rules_loop($view_name, $display_name, array $settings = array()) {
+  return new ViewsRulesLoop($view_name, $display_name, $settings);
+}
+
+/**
  * Implements hook_views_api().
  */
 function views_rules_views_api() {

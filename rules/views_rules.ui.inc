@@ -37,7 +37,7 @@ class ViewsRulesLoopFactoryUI extends RulesFactoryUI {
   public function factoryFormSubmit(&$form, &$form_state, $options = array()) {
     $display = $form_state['values']['display'];
     list($viewName, $displayName) = explode(':', $display, 2);
-    $form_state['rules_factory_created'] = new ViewsRulesLoop($viewName, $displayName);
+    $form_state['rules_factory_created'] = views_rules_loop($viewName, $displayName);
   }
 }
 
