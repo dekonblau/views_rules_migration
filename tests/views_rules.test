@@ -1,0 +1,82 @@
+<?php
+/**
+ * @file
+ * Simpletest implementations.
+ */
+
+/**
+ * Core API tests.
+ */
+class ViewsRulesAPITestCase extends DrupalWebTestCase {
+  /**
+   * Declares test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'API function tests',
+      'description' => 'Tests basic module functionality.',
+      'group' => 'Views Rules',
+    );
+  }
+}
+
+/**
+ * Views display tests.
+ */
+class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
+  /**
+   * Declares test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Views integration tests',
+      'description' => 'Tests Views display plugin implementations.',
+      'group' => 'Views Rules',
+    );
+  }
+}
+
+/**
+ * Base test case for Rules tests.
+ */
+class ViewsRulesRulesTestBase extends DrupalWebTestCase {
+  /**
+   * Creates a view with a Rules display.
+   */
+  public function viewRulesDisplay() {
+    // TODO
+    return NULL;
+  }
+}
+
+/**
+ * Rules plugin tests.
+ */
+class ViewsRulesViewLoopTestCase extends ViewsRulesRulesTestBase {
+  /**
+   * Declares test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Rules view loop tests',
+      'description' => 'Tests view loop integration with Rules.',
+      'group' => 'Views Rules',
+    );
+  }
+}
+
+/**
+ * Rules plugin tests.
+ */
+class ViewsRulesCollectActionTestCase extends ViewsRulesRulesTestBase {
+  /**
+   * Declares test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Rules collect action tests',
+      'description' => 'Tests view loop integration with Rules.',
+      'group' => 'Views Rules',
+    );
+  }
+}
