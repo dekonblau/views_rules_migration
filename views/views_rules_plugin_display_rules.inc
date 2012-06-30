@@ -165,7 +165,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $option_parameter = (array) $this->get_option('rules_parameter');
     foreach ($this->get_argument_labels() as $variable => $label) {
       $option_parameter += array($variable => array());
-      $form[$variable] = $this->get_variable_form($variable, $label, $option_parameter[$variable]);
+      $form[$variable] = $this->get_parameter_form($variable, $label, $option_parameter[$variable]);
     }
   }
 
@@ -210,9 +210,25 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   }
 
   /**
+   * Builds the form element for a single parameter.
+   */
+  function get_parameter_form($name, $label, $info, $optional = FALSE) {
+    return $this->build_variable_form($name, $label, $info, $optional);
+  }
+
+  /**
    * Builds the form element for a single variable.
    */
   function get_variable_form($name, $label, $info, $optional = FALSE) {
+    $items = views_rules_data_types(array('entity' => TRUE));
+    $type_options = views_rules_data_type_options($items);
+    return $this->build_variable_form($name, $label, $info, $optional, $type_options);
+  }
+
+  /**
+   * Builds the form element for a single variable.
+   */
+  function build_variable_form($name, $label, $info, $optional = FALSE, $type_options = NULL) {
     $info += array(
       'type' => NULL,
       'label' => $label,
@@ -252,7 +268,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $form['type'] = array(
       '#type' => 'select',
       '#title' => t('Data type'),
-      '#options' => views_rules_data_type_options(),
+      '#options' => is_array($type_options) ? $type_options : views_rules_data_type_options(),
       '#empty_value' => '',
       '#default_value' => $info['type'],
       '#required' => empty($optional),

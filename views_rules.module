@@ -7,21 +7,52 @@
 /**
  * Gets data types.
  */
-function views_rules_data_type_options() {
-  $cache = rules_get_cache();
-  $data_info = $cache['data_info'];
-  unset($data_info['list']);
-  $items = array();
-  foreach ($data_info as $name => $info) {
-    if (strpos($name, 'list<') === FALSE) {
-      $items[$name] = $info;
-    }
+function views_rules_data_type_options($items = NULL) {
+  if (!isset($items)) {
+    $items = views_rules_data_types();
   }
   // Build options list as Rules UI would.
   module_load_include('inc', 'rules', 'ui/ui.core');
   $options = RulesPluginUI::getOptions('data', $items);
 
   return $options;
+}
+
+/**
+ * Builds data options for Rules data types.
+ */
+function views_rules_data_types($options = array()) {
+  // Enumerate data types.
+  $cache = rules_get_cache();
+  $items = $cache['data_info'];
+
+  // Add default data options.
+  $options += array(
+    'list' => FALSE,
+    'entity' => FALSE,
+  );
+
+  // Remove list items.
+  if (empty($options['list'])) {
+    if (isset($items['list'])) {
+      unset($items['list']);
+    }
+    foreach ($items as $name => $info) {
+      if (strpos($name, 'list<') === 0) {
+        unset($items[$name]);
+      }
+    }
+  }
+
+  // Remove entity items.
+  if (empty($options['entity'])) {
+    if (isset($items['entity'])) {
+      unset($items['entity']);
+    }
+    $items = array_diff_key($items, entity_get_info());
+  }
+
+  return $items;
 }
 
 /**
