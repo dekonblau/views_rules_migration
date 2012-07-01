@@ -5,7 +5,7 @@
  */
 
 /**
- * Core API tests.
+ * API function tests.
  */
 class ViewsRulesAPITestCase extends DrupalWebTestCase {
   /**
