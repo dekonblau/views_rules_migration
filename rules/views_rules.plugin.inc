@@ -75,10 +75,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     try {
       if ($iterator = $this->getViewIterator()) {
         // Prepare view arguments.
-        $arguments = array();
-        foreach ($iterator->get_rules_parameter_info() as $name => $info) {
-          $arguments[] = $this->getArgument($name, $info, $state);
-        }
+        $arguments = array_intersect_key($this->getExecutionArguments($state), $this->pluginParameterInfo());
+        $arguments = array_values(rules_unwrap_data($arguments));
         // Execute view.
         $this->viewLoopState = $state;
         try {
