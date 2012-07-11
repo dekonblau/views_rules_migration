@@ -1,6 +1,6 @@
 name = Views Rules
 description = Extends Views for use in Rules as actions and loops.
-dependencies[] = rules (2.x)
+dependencies[] = rules
 dependencies[] = rules_admin_factory
 dependencies[] = views
 core = 7.x
