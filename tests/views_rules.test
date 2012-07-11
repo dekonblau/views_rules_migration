@@ -18,6 +18,31 @@ class ViewsRulesAPITestCase extends DrupalWebTestCase {
       'group' => 'Views Rules',
     );
   }
+
+  protected function setUp() {
+    parent::setUp('views_rules_test');
+  }
+
+  /**
+   * Tests data type listing.
+   */
+  public function testDataTypes() {
+    // TODO
+  }
+
+  /**
+   * Tests listing rule iterator view displays.
+   */
+  public function testListIterators() {
+    // TODO
+  }
+
+  /**
+   * Tests retrieving a view by view and display names joined by a colon.
+   */
+  public function testGetView() {
+    // TODO
+  }
 }
 
 /**
