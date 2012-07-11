@@ -119,7 +119,7 @@ function views_rules_test_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['rules_parameter'] = array(
     'field_tags_tid' => array(
-      'enabled' => TRUE,
+      'enabled' => 1,
       'type' => 'integer',
       'label' => 'Term ID',
       'name' => 'tid',

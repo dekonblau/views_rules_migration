@@ -233,7 +233,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       'type' => NULL,
       'label' => $label,
       'name' => $name,
-      'enabled' => TRUE,
+      'enabled' => 1,
     );
 
     $form = array(
@@ -244,7 +244,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     if (!$optional) {
       $form['enabled'] = array(
         '#type' => 'value',
-        '#value' => TRUE,
+        '#value' => 1,
       );
     }
     else {
