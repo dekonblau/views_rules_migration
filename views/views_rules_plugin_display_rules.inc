@@ -41,7 +41,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
         $options['rules_parameter'] = array(
           'category' => 'rules',
           'title' => t('Parameters'),
-          'value' => t('edit argument info'),
+          'value' => t('edit contextual filter info'),
         );
       }
       $options['rules_variables'] = array(
