@@ -12,9 +12,6 @@ function views_rules_rules_plugin_info() {
         'RulesPluginUIInterface' => array(
           'class' => 'ViewsRulesLoopUI',
         ),
-        'RulesFactoryUIInterface' => array(
-          'class' => 'ViewsRulesLoopFactoryUI',
-        ),
       ),
     ),
   );

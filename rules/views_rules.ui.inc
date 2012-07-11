@@ -5,51 +5,26 @@
  */
 
 /**
- * Factory UI for a view loop.
- */
-class ViewsRulesLoopFactoryUI extends RulesFactoryUI {
-  /**
-   * Builds the factory form for creating an instance of the plugin.
-   *
-   * @param $form
-   *   The form array to add the factory form to.
-   * @param $form_state
-   *   The current form state.
-   */
-  public function factoryForm(&$form, &$form_state, $options = array()) {
-    if (empty($options['init'])) {
-      // Add view selector.
-      $form['display'] = array(
-        '#type' => 'select',
-        '#title' => t('Views iterator display'),
-        '#options' => views_rules_list_iterators(),
-        '#description' => t('Select the view display to use for looping. To add a display to the list, add a "Rules" display to a view.'),
-        '#required' => TRUE,
-      );
-    }
-  }
-
-  /**
-   * Processes the factory form submission as built in
-   * RulesFactoryUIInterface::factoryForm(). Set 'rules_factory_created' to a
-   * created instance for configuration to begin.
-   */
-  public function factoryFormSubmit(&$form, &$form_state, $options = array()) {
-    $display = $form_state['values']['display'];
-    list($viewName, $displayName) = explode(':', $display, 2);
-    $form_state['rules_factory_created'] = views_rules_loop($viewName, $displayName);
-  }
-}
-
-/**
  * Views loop administrative UI.
  */
 class ViewsRulesLoopUI extends RulesActionContainerUI {
+  /**
+   * @var ViewsRulesLoop
+   */
+  protected $element;
+
   public function form(&$form, &$form_state, $options = array(), $iterator = NULL) {
+    $baseCount = count(explode('/', RulesPluginUI::$basePath));
+    $op = arg($baseCount + 2);
+    if ($op == 'add') {
+      // Redirect to extended path.
+      $pathAddView = RulesPluginUI::path($this->element->root()->name, 'add-view-loop', $this->element->parentElement(), $this->element->plugin());
+      drupal_goto($pathAddView);
+    }
+
     parent::form($form, $form_state, $options, $iterator);
 
-    // Build row variable forms.
-    /** @var $display views_rules_iterator */
+    // Add row variable form.
     if ($display = $this->element->getViewIterator()) {
       $settings = $this->element->settings;
       foreach ($display->get_rules_variable_info() as $var_name => $var_info) {
@@ -83,7 +58,11 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
     }
   }
 
-  function form_extract_values($form, &$form_state) {
+  public function help() {
+    return t('Configure parameters for input into the view and row variables available in loop iterations.');
+  }
+
+  public function form_extract_values($form, &$form_state) {
     parent::form_extract_values($form, $form_state);
     $form_values = RulesPluginUI::getFormStateValues($form, $form_state);
 
