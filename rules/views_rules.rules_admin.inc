@@ -74,20 +74,22 @@ function views_rules_add_view_loop($form, &$form_state, $rules_config, $plugin_n
  * Provides a variant of rules_ui_add_element_submit() to create a view loop.
  */
 function views_rules_add_view_loop_submit($form, &$form_state) {
-  $display = $form_state['values']['display'];
-  list($viewName, $displayName) = explode(':', $display, 2);
-  $element = views_rules_loop($viewName, $displayName);
+  if (!isset($form_state['rules_element'])) {
+    $display = $form_state['values']['display'];
+    list($viewName, $displayName) = explode(':', $display, 2);
+    $element = views_rules_loop($viewName, $displayName);
 
-  // Always add the new element at the bottom, thus set an appropriate weight.
-  $iterator = $form_state['parent_element']->getIterator();
-  if ($sibling = end($iterator)) {
-    $element->weight = $sibling->weight + 1;
+    // Always add the new element at the bottom, thus set an appropriate weight.
+    $iterator = $form_state['parent_element']->getIterator();
+    if ($sibling = end($iterator)) {
+      $element->weight = $sibling->weight + 1;
+    }
+    // Clear the element settings so they won't be processed on serialization as
+    // there is nothing to be processed yet.
+    $element->settings = array();
+    $element->setParent($form_state['parent_element']);
+
+    $form_state['rules_element'] = $element;
   }
-  // Clear the element settings so they won't be processed on serialization as
-  // there is nothing to be processed yet.
-  $element->settings = array();
-  $element->setParent($form_state['parent_element']);
-
-  $form_state['rules_element'] = $element;
   $form_state['rebuild'] = TRUE;
 }
