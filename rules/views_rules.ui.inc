@@ -156,7 +156,7 @@ function views_rules_collect_rows_form_alter(&$form, &$form_state, $options, Rul
     $display_label = isset($options[$element->settings['display']]) ? $options[$element->settings['display']] : '';
     $form['parameter']['display']['info'] = array(
       '#prefix' => '<p>',
-      '#markup' => t('<strong>Selected view display:</strong> %selector', array('%selector' => $display_label)),
+      '#markup' => t('!selector_label %selector', array('!selector_label' => '<strong>' . t('Selected view display:') . '</strong>', '%selector' => $display_label)),
       '#suffix' => '</p>',
     );
   }
