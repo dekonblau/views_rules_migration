@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * Test implementations for Views Rules.
+ */
+
+/**
+ * Implements hook_views_api().
+ */
+function views_rules_test_views_api() {
+  return array(
+    'version' => '3.0',
+  );
+}

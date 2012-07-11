@@ -1,0 +1,5 @@
+name = Views Rules Test
+core = 7.x
+dependencies[] = views_rules_test
+package = Rules
+hidden = TRUE
