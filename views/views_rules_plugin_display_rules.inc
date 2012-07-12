@@ -97,6 +97,9 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
         }
         form_error($element, $error['message']);
       }
+      else {
+        form_error($form, $error['message']);
+      }
     }
   }
 
