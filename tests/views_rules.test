@@ -120,25 +120,30 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
 
     // Test the row variable form.
     $this->drupalGet('admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_variables');
-    $this->assertFieldByName('options[title][enabled]', '1', 'Variable enabled checkbox is correctly displayed in form.');
-    $this->assertFieldByName('options[title][type]', 'text', 'Variable type is correctly displayed in form.');
-    $this->assertFieldByName('options[title][label]', 'Title', 'Variable label is correctly displayed in form.');
-    $this->assertFieldByName('options[title][name]', 'title', 'Variable name is correctly displayed in form.');
+    $this->assertFieldByName('options[nid][enabled]', '1', 'Variable enabled checkbox is correctly displayed in form.');
+    $this->assertFieldByName('options[nid][type]', 'integer', 'Variable type is correctly displayed in form.');
+    $this->assertFieldByName('options[nid][label]', 'Nid', 'Variable label is correctly displayed in form.');
+    $this->assertFieldByName('options[nid][name]', 'nid', 'Variable name is correctly displayed in form.');
 
     // Test changing variable.
     $edit = array(
-      'options[title][type]' => 'integer',
-      'options[title][label]' => 'Test',
-      'options[title][name]' => 'test',
+      'options[nid][type]' => 'text',
+      'options[nid][label]' => 'Test',
+      'options[nid][name]' => 'test',
     );
     $this->drupalPost(NULL, $edit, t('Apply'));
     $this->assertUrl($editPath, array(), 'Variable details can be edited in form.');
-    $view = views_rules_get_view($id);
+    $this->drupalPost(NULL, array(), t('Save'));
+
+    // Check info.
+    $view = views_rules_get_view($id, TRUE);
     /** @var $iterator views_rules_iterator */
     $iterator = $view->display_handler;
-    $expectedInfo = array('test' => array('type' => 'integer', 'label' => 'Test'));
+    $expectedInfo = array(
+      'test' => array('type' => 'text', 'label' => 'Test'),
+      'title' => array('type' => 'text', 'label' => 'Title'),
+    );
     $this->assertEqual($expectedInfo, $iterator->get_rules_variable_info(), 'Variable info is changed.');
-    views_invalidate_cache();
 
     // TODO Test variable name valid characters.
     // TODO Test variable name uniqueness.
