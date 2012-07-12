@@ -191,6 +191,59 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $iterator = $view->display_handler;
     $this->assertEqual(array('title'), array_keys($iterator->get_rules_variable_info()), 'Variable can be disabled.');
   }
+
+  /**
+   * Tests parameter info configuration form.
+   */
+  public function testParameterForm() {
+    $id = 'views_rules_test:views_rules_1';
+    $editPath = 'admin/structure/views/view/views_rules_test/edit';
+    $variablePath = 'admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_parameter';
+    $rearrangePath = 'admin/structure/views/nojs/rearrange/views_rules_test/views_rules_1/argument';
+
+    // Test the parameter form.
+    $this->drupalGet($variablePath);
+    $this->assertNoFieldByName('options[nid][enabled]', '', 'Parameter enabled checkbox is not displayed in form.');
+
+    // Test changing parameter.
+    $edit = array(
+      'options[type][type]' => 'text',
+      'options[type][label]' => 'Test',
+      'options[type][name]' => 'test',
+    );
+    $this->drupalPost(NULL, $edit, t('Apply'));
+    $this->assertUrl($editPath, array(), 'Parameter details can be edited in form.');
+    $this->drupalPost(NULL, array(), t('Save'));
+
+    // Check info.
+    $view = views_rules_get_view($id, TRUE);
+    /** @var $iterator views_rules_iterator */
+    $iterator = $view->display_handler;
+    $expectedInfo = array(
+      'tid' => array('type' => 'integer', 'label' => 'Term ID'),
+      'test' => array('type' => 'text', 'label' => 'Test'),
+    );
+    $this->assertIdentical($expectedInfo, $iterator->get_rules_parameter_info(), 'Parameter info is changed.');
+
+    // Test parameter name uniqueness.
+    $edit = array(
+      'options[type][name]' => 'tid',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter names must not overlap.');
+
+    // Test rearranging parameters.
+    $edit = array(
+      'field_tags_tid[weight]' => '2',
+      'type[weight]' => '1',
+    );
+    $this->drupalPost($rearrangePath, $edit, t('Apply'));
+    $this->drupalPost(NULL, array(), t('Save'));
+    $view = views_rules_get_view($id, TRUE);
+    /** @var $iterator views_rules_iterator */
+    $iterator = $view->display_handler;
+    $this->assertEqual(array('test', 'tid'), array_keys($iterator->get_rules_parameter_info()), 'Parameter info is returned according to ordering in view.');
+  }
 }
 
 /**
