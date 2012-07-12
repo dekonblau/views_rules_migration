@@ -5,15 +5,15 @@
  */
 
 /**
- * API function tests.
+ * Framework function tests.
  */
-class ViewsRulesAPITestCase extends DrupalWebTestCase {
+class ViewsRulesFrameworkTestCase extends DrupalWebTestCase {
   /**
    * Declares test.
    */
   public static function getInfo() {
     return array(
-      'name' => 'API function tests',
+      'name' => 'Framework tests',
       'description' => 'Tests basic module functionality.',
       'group' => 'Views Rules',
     );
