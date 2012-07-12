@@ -72,6 +72,7 @@ class ViewsRulesFrameworkTestCase extends DrupalWebTestCase {
     $view = views_rules_get_view('views_rules_test:' . $displayId);
     $this->assertTrue(is_object($view) && $view instanceof view, 'Iterator view can be retrieved.');
     $this->assertEqual($displayId, $view->current_display, 'Iterator display is active in retrieved view.');
+    $this->assertTrue($view->display_handler instanceof views_rules_iterator, 'Iterator object is ready.');
   }
 }
 
