@@ -159,7 +159,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $form['#title'] = t('Rules: parameters');
     $form['help'] = array(
       '#prefix' => '<p>',
-      '#markup' => t('Configure the variable info for each argument as they would be used as parameters in Rules.'),
+      '#markup' => t('Configure the variable info for each contextual filter as they would be used as parameters in Rules.'),
       '#suffix' => '</p>',
     );
 
