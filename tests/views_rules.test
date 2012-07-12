@@ -85,10 +85,30 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
    */
   public static function getInfo() {
     return array(
-      'name' => 'Views integration tests',
-      'description' => 'Tests Views display plugin implementations.',
+      'name' => 'Views display tests',
+      'description' => 'Tests Views display plugin implementation.',
       'group' => 'Views Rules',
     );
+  }
+
+  protected function setUp() {
+    parent::setUp('views_rules_test');
+  }
+
+  /**
+   * Tests Rules info retrieval.
+   */
+  public function testGetInfo() {
+    /** @var $iterator views_rules_plugin_display_rules */
+    $iterator = views_rules_get_view('views_rules_parameter_test:views_rules_1')->display_handler;
+
+    // Check parameter info.
+    $parameterInfo = $iterator->get_rules_parameter_info();
+    $this->assertEqual(array('tid'), array_keys($parameterInfo), 'Iterator parameter info is correctly returned.');
+
+    // Check variable info.
+    $variableInfo = $iterator->get_rules_variable_info();
+    $this->assertEqual(array('title'), array_keys($variableInfo), 'Iterator row variable info is correctly returned.');
   }
 }
 
