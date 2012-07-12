@@ -10,3 +10,4 @@ files[] = rules/views_rules.action.inc
 files[] = rules/views_rules.plugin.inc
 files[] = rules/views_rules.ui.inc
 files[] = views/views_rules_plugin_display_rules.inc
+files[] = tests/views_rules.test
