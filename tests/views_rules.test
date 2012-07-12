@@ -326,22 +326,9 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
 }
 
 /**
- * Base test case for Rules tests.
- */
-class ViewsRulesRulesTestBase extends DrupalWebTestCase {
-  /**
-   * Creates a view with a Rules display.
-   */
-  public function viewRulesDisplay() {
-    // TODO
-    return NULL;
-  }
-}
-
-/**
  * Rules plugin tests.
  */
-class ViewsRulesViewLoopTestCase extends ViewsRulesRulesTestBase {
+class ViewsRulesViewLoopTestCase extends DrupalWebTestCase {
   /**
    * Declares test.
    */
@@ -357,7 +344,7 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesRulesTestBase {
 /**
  * Rules plugin tests.
  */
-class ViewsRulesCollectActionTestCase extends ViewsRulesRulesTestBase {
+class ViewsRulesCollectActionTestCase extends DrupalWebTestCase {
   /**
    * Declares test.
    */
