@@ -180,6 +180,28 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $iterator = $view->display_handler;
     $this->assertEqual(array('title', 'test'), array_keys($iterator->get_rules_variable_info()), 'Variable info is returned according to ordering in view.');
 
+    // Test emptying a variable field.
+    $edit = array(
+      'options[nid][type]' => '',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable type cannot be empty.');
+    $edit = array(
+      'options[nid][label]' => '',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable label cannot be empty.');
+    $edit = array(
+      'options[nid][name]' => '',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable name cannot be empty.');
+    $edit = array(
+      'options[nid][enabled]' => FALSE,
+    );
+    $this->drupalPost(NULL, $edit, t('Apply'));
+    $this->assertUrl($editPath, array(), 'Disabled variable can be empty.');
+
     // Test disabling a variable.
     $edit = array(
       'options[nid][enabled]' => FALSE,
@@ -243,6 +265,23 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     /** @var $iterator views_rules_iterator */
     $iterator = $view->display_handler;
     $this->assertEqual(array('test', 'tid'), array_keys($iterator->get_rules_parameter_info()), 'Parameter info is returned according to ordering in view.');
+
+    // Test emptying a parameter field.
+    $edit = array(
+      'options[type][type]' => '',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter type cannot be empty.');
+    $edit = array(
+      'options[type][label]' => '',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter label cannot be empty.');
+    $edit = array(
+      'options[type][name]' => '',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter name cannot be empty.');
   }
 }
 
