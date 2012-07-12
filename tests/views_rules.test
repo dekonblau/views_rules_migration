@@ -110,6 +110,45 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $variableInfo = $iterator->get_rules_variable_info();
     $this->assertEqual(array('title'), array_keys($variableInfo), 'Iterator row variable info is correctly returned.');
   }
+
+  /**
+   * Tests variable info configuration form.
+   */
+  public function testVariableForm() {
+    // Enable Views UI.
+    module_enable(array('views_ui'));
+    $user = $this->drupalCreateUser(array('administer views'));
+    $this->drupalLogin($user);
+    $id = 'views_rules_parameter_test:views_rules_1';
+    $editPath = 'admin/structure/views/view/views_rules_parameter_test/edit';
+
+    // Test the row variable form.
+    $this->drupalGet('admin/structure/views/nojs/display/views_rules_parameter_test/views_rules_1/rules_variables');
+    $this->assertFieldByName('options[title][enabled]', '1', 'Variable enabled checkbox is correctly displayed in form.');
+    $this->assertFieldByName('options[title][type]', 'text', 'Variable type is correctly displayed in form.');
+    $this->assertFieldByName('options[title][label]', 'Title', 'Variable label is correctly displayed in form.');
+    $this->assertFieldByName('options[title][name]', 'title', 'Variable name is correctly displayed in form.');
+
+    // Test changing variable.
+    $edit = array(
+      'options[title][type]' => 'integer',
+      'options[title][label]' => 'Test',
+      'options[title][name]' => 'test',
+    );
+    $this->drupalPost(NULL, $edit, t('Apply'));
+    $this->assertUrl($editPath, array(), 'Variable details can be edited in form.');
+    $view = views_rules_get_view($id);
+    /** @var $iterator views_rules_iterator */
+    $iterator = $view->display_handler;
+    $expectedInfo = array('test' => array('type' => 'integer', 'label' => 'Test'));
+    $this->assertEqual($expectedInfo, $iterator->get_rules_variable_info(), 'Variable info is changed.');
+    views_invalidate_cache();
+
+    // TODO Test variable name valid characters.
+    // TODO Test variable name uniqueness.
+    // TODO Test variable name uniqueness with respect to parameters.
+    // TODO Test name uniqueness.
+  }
 }
 
 /**
