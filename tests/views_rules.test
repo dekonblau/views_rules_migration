@@ -57,11 +57,9 @@ class ViewsRulesFrameworkTestCase extends DrupalWebTestCase {
    */
   public function testListIterators() {
     $views_rules_test_id = 'views_rules_test:views_rules_1';
-    $views_rules_parameter_test_id = 'views_rules_parameter_test:views_rules_1';
 
     $iterators = views_rules_list_iterators(FALSE);
-    $result = $this->assertTrue(array_key_exists($views_rules_test_id, $iterators)) & $this->assertTrue(array_key_exists($views_rules_parameter_test_id, $iterators));
-    $this->assertTrue($result, 'Views iterators are corrected listed.');
+    $this->assertTrue(array_key_exists($views_rules_test_id, $iterators), 'Views iterators are corrected listed.');
   }
 
   /**
@@ -92,7 +90,9 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
   }
 
   protected function setUp() {
-    parent::setUp('views_rules_test');
+    parent::setUp('views_rules_test', 'views_ui');
+    $user = $this->drupalCreateUser(array('administer views'));
+    $this->drupalLogin($user);
   }
 
   /**
@@ -100,30 +100,26 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
    */
   public function testGetInfo() {
     /** @var $iterator views_rules_plugin_display_rules */
-    $iterator = views_rules_get_view('views_rules_parameter_test:views_rules_1')->display_handler;
+    $iterator = views_rules_get_view('views_rules_test:views_rules_1')->display_handler;
 
     // Check parameter info.
     $parameterInfo = $iterator->get_rules_parameter_info();
-    $this->assertEqual(array('tid'), array_keys($parameterInfo), 'Iterator parameter info is correctly returned.');
+    $this->assertEqual(array('tid', 'type'), array_keys($parameterInfo), 'Iterator parameter info is correctly returned.');
 
     // Check variable info.
     $variableInfo = $iterator->get_rules_variable_info();
-    $this->assertEqual(array('title'), array_keys($variableInfo), 'Iterator row variable info is correctly returned.');
+    $this->assertEqual(array('nid', 'title'), array_keys($variableInfo), 'Iterator row variable info is correctly returned.');
   }
 
   /**
    * Tests variable info configuration form.
    */
   public function testVariableForm() {
-    // Enable Views UI.
-    module_enable(array('views_ui'));
-    $user = $this->drupalCreateUser(array('administer views'));
-    $this->drupalLogin($user);
-    $id = 'views_rules_parameter_test:views_rules_1';
-    $editPath = 'admin/structure/views/view/views_rules_parameter_test/edit';
+    $id = 'views_rules_test:views_rules_1';
+    $editPath = 'admin/structure/views/view/views_rules_test/edit';
 
     // Test the row variable form.
-    $this->drupalGet('admin/structure/views/nojs/display/views_rules_parameter_test/views_rules_1/rules_variables');
+    $this->drupalGet('admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_variables');
     $this->assertFieldByName('options[title][enabled]', '1', 'Variable enabled checkbox is correctly displayed in form.');
     $this->assertFieldByName('options[title][type]', 'text', 'Variable type is correctly displayed in form.');
     $this->assertFieldByName('options[title][label]', 'Title', 'Variable label is correctly displayed in form.');
