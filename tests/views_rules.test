@@ -283,6 +283,46 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $this->drupalPost($variablePath, $edit, t('Apply'));
     $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter name cannot be empty.');
   }
+
+  /**
+   * Tests iterator evaluation.
+   */
+  public function testExecuteIterator() {
+    $iterable = new ViewsRulesTestIterable();
+    $view = views_rules_get_view('views_rules_test:views_rules_1');
+    /** @var $iterator views_rules_plugin_display_rules */
+    $iterator = $view->display_handler;
+
+    // Create sample items.
+    module_enable(array('taxonomy'));
+    $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
+    $term = (object) array(
+      'name' => 'Term 1',
+      'vid' => $vocabulary->vid,
+      'vocabulary_machine_name' => 'tags',
+    );
+    taxonomy_term_save($term);
+    $nodeBase = array(
+      'type' => 'article',
+      'language' => LANGUAGE_NONE,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term->tid))),
+    );
+    $this->drupalCreateNode(array('title' => 'Node 1') + $nodeBase);
+    $this->drupalCreateNode(array('title' => 'Node 2') + $nodeBase);
+    $this->drupalCreateNode(array('title' => 'Node 3') + $nodeBase);
+
+    // Disable nid and test executing iterator.
+    $option = $iterator->get_option('rules_variables');
+    $option['nid']['enabled'] = 0;
+    $iterator->set_option('rules_variables', $option);
+    $iterator->execute_iterator(array($term->tid), $iterable);
+    $expectedData = array(
+      array('title' => 'Node 1'),
+      array('title' => 'Node 2'),
+      array('title' => 'Node 3'),
+    );
+    $this->assertIdentical($expectedData, $iterable->rows, 'Iterator display correctly evaluates.');
+  }
 }
 
 /**
