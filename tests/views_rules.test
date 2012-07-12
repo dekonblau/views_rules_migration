@@ -56,7 +56,12 @@ class ViewsRulesAPITestCase extends DrupalWebTestCase {
    * Tests listing rule iterator view displays.
    */
   public function testListIterators() {
-    // TODO
+    $views_rules_test_id = 'views_rules_test:views_rules_1';
+    $views_rules_parameter_test_id = 'views_rules_parameter_test:views_rules_1';
+
+    $iterators = views_rules_list_iterators(FALSE);
+    $result = $this->assertTrue(array_key_exists($views_rules_test_id, $iterators)) & $this->assertTrue(array_key_exists($views_rules_parameter_test_id, $iterators));
+    $this->assertTrue($result, 'Views iterators are corrected listed.');
   }
 
   /**
