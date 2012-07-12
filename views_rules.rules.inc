@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Rules declarations.
+ */
 
 /**
  * Implements hook_rules_plugin_info().

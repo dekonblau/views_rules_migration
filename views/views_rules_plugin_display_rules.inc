@@ -243,7 +243,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
 
     $form = array(
       '#type' => 'fieldset',
-      '#title' => $label,
+      '#title' => check_plain($label),
       '#tree' => TRUE,
     );
     if (!$optional) {
