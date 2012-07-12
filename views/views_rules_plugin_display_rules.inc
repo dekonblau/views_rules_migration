@@ -441,7 +441,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   function get_rules_parameter_info() {
     $option_parameter = (array) $this->get_option('rules_parameter');
     $option_parameter = $this->extract_enabled_options($option_parameter);
-    $option_parameter = array_intersect_key($option_parameter, $this->get_argument_labels());
+    $option_parameter = $this->variable_array_map_keys($option_parameter, array_keys($this->get_argument_labels()));
     return $this->get_rules_info_from_option($option_parameter);
   }
 
@@ -453,7 +453,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     if ($this->uses_fields()) {
       $option_variables = (array) $this->get_option('rules_variables');
       $option_variables = $this->extract_enabled_options($option_variables);
-      $option_variables = array_intersect_key($option_variables, $this->get_field_labels());
+      $option_variables = $this->variable_array_map_keys($option_variables, array_keys($this->get_field_labels()));
       return $this->get_rules_info_from_option($option_variables);
     }
     // Return row variable.
@@ -469,6 +469,19 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
 
     // Return no variable otherwise.
     return array();
+  }
+
+  /**
+   * Extracts values from an array using an ordered list of keys.
+   */
+  function variable_array_map_keys($array, $keys) {
+    $return = array();
+    foreach ($keys as $key) {
+      if (array_key_exists($key, $array)) {
+        $return[$key] = $array[$key];
+      }
+    }
+    return $return;
   }
 
   /**
