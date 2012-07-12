@@ -27,7 +27,29 @@ class ViewsRulesAPITestCase extends DrupalWebTestCase {
    * Tests data type listing.
    */
   public function testDataTypes() {
-    // TODO
+    $entityInfo = entity_get_info();
+
+    // Check only primitives are returned.
+    $items = views_rules_data_types();
+    $this->assertIdentical(array(), array_intersect_key($items, $entityInfo), 'Default data types do not include entity types.');
+    $this->assertIdentical(array(), array_filter(array_keys($items), array(__CLASS__, 'filterListDataTypes')), 'Default data types do not include lists.');
+
+    // Check list types are returned.
+    $items = views_rules_data_types(array('list' => TRUE));
+    $this->assertNotIdentical(array(), array_filter(array_keys($items), array(__CLASS__, 'filterListDataTypes')), 'List types are correctly enumerated.');
+    $this->assertIdentical($items, array_diff_key($items, $entityInfo), 'List types do not include entity types.');
+
+    // Check entity types are returned.
+    $items = views_rules_data_types(array('entity' => TRUE));
+    $this->assertIdentical(array(), array_diff_key($entityInfo, $items), 'Entity types are correctly enumerated.');
+    $this->assertIdentical(array(), array_filter(array_keys($items), array(__CLASS__, 'filterListDataTypes')), 'Entity data types do not include lists.');
+  }
+
+  /**
+   * Filters list data types.
+   */
+  public static function filterListDataTypes($type) {
+    return 0 === strpos($type, 'list<');
   }
 
   /**
