@@ -117,10 +117,12 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
   public function testVariableForm() {
     $id = 'views_rules_test:views_rules_1';
     $editPath = 'admin/structure/views/view/views_rules_test/edit';
+    $variablePath = 'admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_variables';
+    $rearrangePath = 'admin/structure/views/nojs/rearrange/views_rules_test/views_rules_1/field';
 
     // Test the row variable form.
-    $this->drupalGet('admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_variables');
-    $this->assertFieldByName('options[nid][enabled]', '1', 'Variable enabled checkbox is correctly displayed in form.');
+    $this->drupalGet($variablePath);
+    $this->assertFieldByName('options[nid][enabled]', NULL, 'Variable enabled checkbox is correctly displayed in form.');
     $this->assertFieldByName('options[nid][type]', 'integer', 'Variable type is correctly displayed in form.');
     $this->assertFieldByName('options[nid][label]', 'Nid', 'Variable label is correctly displayed in form.');
     $this->assertFieldByName('options[nid][name]', 'nid', 'Variable name is correctly displayed in form.');
@@ -143,12 +145,51 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
       'test' => array('type' => 'text', 'label' => 'Test'),
       'title' => array('type' => 'text', 'label' => 'Title'),
     );
-    $this->assertEqual($expectedInfo, $iterator->get_rules_variable_info(), 'Variable info is changed.');
+    $this->assertIdentical($expectedInfo, $iterator->get_rules_variable_info(), 'Variable info is changed.');
 
-    // TODO Test variable name valid characters.
-    // TODO Test variable name uniqueness.
-    // TODO Test variable name uniqueness with respect to parameters.
-    // TODO Test name uniqueness.
+    // Test variable name valid characters.
+    $edit = array(
+      'options[nid][name]' => '#',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Only valid variable names can be saved.');
+
+    // Test variable name uniqueness.
+    $edit = array(
+      'options[nid][name]' => 'title',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable names must not overlap.');
+
+    // Test variable name uniqueness with respect to parameters.
+    $edit = array(
+      'options[nid][name]' => 'tid',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable names must not overlap with parameter names.');
+
+    // Test rearranging variables.
+    $edit = array(
+      'nid[weight]' => '2',
+      'title[weight]' => '1',
+    );
+    $this->drupalPost($rearrangePath, $edit, t('Apply'));
+    $this->drupalPost(NULL, array(), t('Save'));
+    $view = views_rules_get_view($id, TRUE);
+    /** @var $iterator views_rules_iterator */
+    $iterator = $view->display_handler;
+    $this->assertEqual(array('title', 'test'), array_keys($iterator->get_rules_variable_info()), 'Variable info is returned according to ordering in view.');
+
+    // Test disabling a variable.
+    $edit = array(
+      'options[nid][enabled]' => FALSE,
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->drupalPost(NULL, array(), t('Save'));
+    $view = views_rules_get_view($id, TRUE);
+    /** @var $iterator views_rules_iterator */
+    $iterator = $view->display_handler;
+    $this->assertEqual(array('title'), array_keys($iterator->get_rules_variable_info()), 'Variable can be disabled.');
   }
 }
 
