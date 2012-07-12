@@ -327,10 +327,13 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   function parameter_options_validate($options) {
     $errors = array();
 
-    if (array_diff_key($this->get_argument_labels(), $options)) {
-      $errors[] = array(
-        'message' => t('Some contextual filters are not configured.'),
-      );
+    if ($missing = array_diff_key($this->get_argument_labels(), $options)) {
+      foreach ($missing as $id => $label) {
+        $errors[] = array(
+          'id' => $id,
+          'message' => t('The %var contextual filter is not configured.', array('%var' => $label)),
+        );
+      }
     }
     $errors = array_merge($errors, $this->validate_machine_name($options));
     $errors = array_merge($errors, $this->validate_unique_names($options));
@@ -344,10 +347,13 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   function variables_options_validate($options) {
     $errors = array();
 
-    if (array_diff_key($this->get_field_labels(), $options)) {
-      $errors[] = array(
-        'message' => t('Some fields are not configured.'),
-      );
+    if ($missing = array_diff_key($this->get_field_labels(), $options)) {
+      foreach ($missing as $id => $label) {
+        $errors[] = array(
+          'id' => $id,
+          'message' => t('The %var field is not configured.', array('%var' => $label)),
+        );
+      }
     }
     $options = $this->extract_enabled_options($options);
     $errors = array_merge($errors, $this->validate_machine_name($options));
