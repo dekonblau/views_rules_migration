@@ -33,6 +33,14 @@ abstract class ViewsRulesBaseTestCase extends DrupalWebTestCase {
 
     return $data;
   }
+
+  /**
+   * Retrieves a file in the test directory.
+   */
+  protected function getFileContents($fileName) {
+    $filePath = drupal_get_path('module', 'views_rules_test') . '/' . $fileName;
+    return file_get_contents($filePath);
+  }
 }
 
 /**
@@ -401,6 +409,28 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
     $comp = $this->createTestNonFieldComponent();
     $result = $comp->execute($data['term']);
     $this->assertIdentical($expectedData, reset($result), 'Non-field view loop evaluates correctly.');
+  }
+
+  /**
+   * Tests exporting a view loop.
+   */
+  public function testExport() {
+    $comp = $this->createTestComponent();
+    $comp->name = 'view_loop_test';
+    $export = $this->getFileContents('view_loop_test.export.txt');
+    $this->assertEqual($export, $comp->export(), 'View loop exports correctly.');
+  }
+
+  /**
+   * Tests importing a view loop.
+   */
+  public function testImport() {
+    $export = $this->getFileContents('view_loop_test.export.txt');
+    $comp = entity_import('rules_config', $export);
+    $data = $this->createSiteData();
+    $expectedData = array($data['node1']->title, $data['node2']->title, $data['node3']->title);
+    $result = $comp->execute($data['term']);
+    $this->assertIdentical($expectedData, reset($result), 'Imported view loop evaluates correctly.');
   }
 
   /**
