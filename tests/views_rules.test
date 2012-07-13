@@ -111,7 +111,7 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $this->assertEqual(array('nid', 'title'), array_keys($variableInfo), 'Iterator row variable info is correctly returned.');
 
     // Check variable info of non-field row styles.
-    $iterator->set_option('row_plugin', 'node');
+    $iterator = views_rules_get_view('views_rules_non_field_test:views_rules_1')->display_handler;
     $variableInfo = $iterator->get_rules_variable_info();
     $this->assertEqual(array('node'), array_keys($variableInfo), 'Non-field row style returns base entity type as variable.');
   }
@@ -329,7 +329,7 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $this->assertIdentical($expectedData, $iterable->rows, 'Iterator display correctly evaluates.');
 
     // Check execution for non-field row styles.
-    $iterator->set_option('row_plugin', 'node');
+    $iterator = views_rules_get_view('views_rules_non_field_test:views_rules_1')->display_handler;
     $iterator->execute_iterator(array($term->tid), $iterable->reset());
     $expectedData = array(
       array('node' => $node1->nid),
