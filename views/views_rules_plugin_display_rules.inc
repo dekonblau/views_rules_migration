@@ -76,16 +76,15 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    */
   function options_validate(&$form, &$form_state) {
     parent::options_validate($form, $form_state);
-    $options = $form_state['values']['options'];
 
     $errors = array();
     switch ($form_state['section']) {
       case 'rules_parameter':
-        $errors = $this->parameter_options_validate($options);
+        $errors = $this->parameter_options_validate($form_state['values']['options']);
         break;
 
       case 'rules_variables':
-        $errors = $this->variables_options_validate($options);
+        $errors = $this->variables_options_validate($form_state['values']['options']);
         break;
     }
 
