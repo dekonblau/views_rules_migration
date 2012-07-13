@@ -346,6 +346,29 @@ class ViewsRulesViewLoopTestCase extends DrupalWebTestCase {
     );
   }
 
+  protected function setUp() {
+    parent::setUp('views_rules_test', 'rules_admin', 'views_ui');
+    $user = $this->drupalCreateUser(array('administer rules', 'administer views'));
+    $this->drupalLogin($user);
+  }
+
+  /**
+   * Tests creation of a view loop.
+   */
+  public function testViewLoopUI() {
+    // Check redirection.
+    rules_action_set(array('term' => array('type' => 'taxonomy_term', 'label' => 'Term')))->save('test');
+    $this->drupalGet('admin/config/workflow/rules/components/manage/test/add/1/view loop');
+    $this->assertUrl('admin/config/workflow/rules/components/manage/test/add-view-loop/1', array(), 'Form redirects when adding a view loop.');
+
+    // Create view loop.
+    $this->drupalPost(NULL, array('display' => 'views_rules_non_field_test:views_rules_1'), t('Continue'));
+    $this->drupalPost(NULL, array(), t('Switch to data selection'));
+    $this->drupalPost(NULL, array('parameter[tid][settings][tid:select]' => 'term:tid'), t('Save'));
+    $this->assertUrl('admin/config/workflow/rules/components/manage/test', array(), 'View loop creation form is saved.');
+    $this->assertLinkByHref('admin/structure/views/view/views_rules_non_field_test/edit/views_rules_1', 0, 'View loop can be added via UI.');
+  }
+
   /**
    * Creates an action set to test a view loop.
    */
