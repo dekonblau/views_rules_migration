@@ -438,22 +438,30 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    * Gets parameter info for Rules.
    */
   function get_rules_parameter_info() {
+    return $this->get_processed_rules_parameter_info();
+  }
+
+  function get_processed_rules_parameter_info($view_key = FALSE) {
     $option_parameter = (array) $this->get_option('rules_parameter');
     $option_parameter = $this->extract_enabled_options($option_parameter);
     $option_parameter = $this->variable_array_map_keys($option_parameter, array_keys($this->get_argument_labels()));
-    return $this->get_rules_info_from_option($option_parameter);
+    return $this->get_rules_info_from_option($option_parameter, $view_key);
   }
 
   /**
    * Gets row variable info for Rules.
    */
   function get_rules_variable_info() {
+    return $this->get_processed_rules_variable_info();
+  }
+
+  function get_processed_rules_variable_info($view_key = FALSE) {
     // Return configured field variables.
     if ($this->uses_fields()) {
       $option_variables = (array) $this->get_option('rules_variables');
       $option_variables = $this->extract_enabled_options($option_variables);
       $option_variables = $this->variable_array_map_keys($option_variables, array_keys($this->get_field_labels()));
-      return $this->get_rules_info_from_option($option_variables);
+      return $this->get_rules_info_from_option($option_variables, $view_key);
     }
     // Return row variable.
     elseif ($entity_info = entity_get_info($entity_type = $this->view->base_table)) {
@@ -486,7 +494,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   /**
    * Gets processed Rules info from an option value.
    */
-  function get_rules_info_from_option($option) {
+  function get_rules_info_from_option($option, $view_key = FALSE) {
     $info = array();
     foreach ($option as $var => $var_info) {
       $var_info += array(
@@ -497,8 +505,10 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       $info[$var_info['name']] = array(
         'type' => $var_info['type'],
         'label' => $var_info['label'],
-        'view field' => $var,
       );
+      if ($view_key) {
+        $info[$var_info['name']]['view key'] = $var;
+      }
     }
     return $info;
   }
@@ -538,13 +548,13 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       throw new views_rules_iterator_exception('Access to view display is denied.');
     }
     // Iterate through results.
-    $variable_info = $this->get_rules_variable_info();
+    $variable_info = $this->get_processed_rules_variable_info(TRUE);
     foreach ($this->view->result as $row_index => $row) {
       // Build row data.
       $data = array();
       if ($this->uses_fields()) {
         foreach ($variable_info as $var_name => $info) {
-          $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $info['view field']);
+          $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $info['view key']);
         }
       }
       else {
