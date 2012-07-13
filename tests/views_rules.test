@@ -143,9 +143,8 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, array(), t('Save'));
 
     // Check info.
-    $view = views_rules_get_view($id, TRUE);
     /** @var $iterator views_rules_iterator */
-    $iterator = $view->display_handler;
+    $iterator = views_rules_get_view($id, TRUE)->display_handler;
     $expectedInfo = array(
       'test' => array('type' => 'text', 'label' => 'Test'),
       'title' => array('type' => 'text', 'label' => 'Title'),
@@ -180,9 +179,7 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     );
     $this->drupalPost($rearrangePath, $edit, t('Apply'));
     $this->drupalPost(NULL, array(), t('Save'));
-    $view = views_rules_get_view($id, TRUE);
-    /** @var $iterator views_rules_iterator */
-    $iterator = $view->display_handler;
+    $iterator = views_rules_get_view($id, TRUE)->display_handler;
     $this->assertEqual(array('title', 'test'), array_keys($iterator->get_rules_variable_info()), 'Variable info is returned according to ordering in view.');
 
     // Test emptying a variable field.
@@ -213,9 +210,7 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
     $this->drupalPost(NULL, array(), t('Save'));
-    $view = views_rules_get_view($id, TRUE);
-    /** @var $iterator views_rules_iterator */
-    $iterator = $view->display_handler;
+    $iterator = views_rules_get_view($id, TRUE)->display_handler;
     $this->assertEqual(array('title'), array_keys($iterator->get_rules_variable_info()), 'Variable can be disabled.');
   }
 
@@ -243,9 +238,8 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, array(), t('Save'));
 
     // Check info.
-    $view = views_rules_get_view($id, TRUE);
     /** @var $iterator views_rules_iterator */
-    $iterator = $view->display_handler;
+    $iterator = views_rules_get_view($id, TRUE)->display_handler;
     $expectedInfo = array(
       'tid' => array('type' => 'integer', 'label' => 'Term ID'),
       'test' => array('type' => 'text', 'label' => 'Test'),
@@ -266,9 +260,7 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     );
     $this->drupalPost($rearrangePath, $edit, t('Apply'));
     $this->drupalPost(NULL, array(), t('Save'));
-    $view = views_rules_get_view($id, TRUE);
-    /** @var $iterator views_rules_iterator */
-    $iterator = $view->display_handler;
+    $iterator = views_rules_get_view($id, TRUE)->display_handler;
     $this->assertEqual(array('test', 'tid'), array_keys($iterator->get_rules_parameter_info()), 'Parameter info is returned according to ordering in view.');
 
     // Test emptying a parameter field.
@@ -294,9 +286,8 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
    */
   public function testExecuteIterator() {
     $iterable = new ViewsRulesTestIterable();
-    $view = views_rules_get_view('views_rules_test:views_rules_1');
     /** @var $iterator views_rules_plugin_display_rules */
-    $iterator = $view->display_handler;
+    $iterator = views_rules_get_view('views_rules_test:views_rules_1')->display_handler;
 
     // Create sample items.
     module_enable(array('taxonomy'));
