@@ -110,7 +110,10 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $variableInfo = $iterator->get_rules_variable_info();
     $this->assertEqual(array('nid', 'title'), array_keys($variableInfo), 'Iterator row variable info is correctly returned.');
 
-    // TODO Check variable info of non-field styles.
+    // Check variable info of non-field row styles.
+    $iterator->set_option('row_plugin', 'node');
+    $variableInfo = $iterator->get_rules_variable_info();
+    $this->assertEqual(array('node'), array_keys($variableInfo), 'Non-field row style returns base entity type as variable.');
   }
 
   /**
@@ -309,9 +312,9 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
       'language' => LANGUAGE_NONE,
       'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term->tid))),
     );
-    $this->drupalCreateNode(array('title' => 'Node 1') + $nodeBase);
-    $this->drupalCreateNode(array('title' => 'Node 2') + $nodeBase);
-    $this->drupalCreateNode(array('title' => 'Node 3') + $nodeBase);
+    $node1 = $this->drupalCreateNode(array('title' => 'Node 1') + $nodeBase);
+    $node2 = $this->drupalCreateNode(array('title' => 'Node 2') + $nodeBase);
+    $node3 = $this->drupalCreateNode(array('title' => 'Node 3') + $nodeBase);
 
     // Disable nid and test executing iterator.
     $option = $iterator->get_option('rules_variables');
@@ -325,7 +328,15 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     );
     $this->assertIdentical($expectedData, $iterable->rows, 'Iterator display correctly evaluates.');
 
-    // TODO Check execution for non-field styles.
+    // Check execution for non-field row styles.
+    $iterator->set_option('row_plugin', 'node');
+    $iterator->execute_iterator(array($term->tid), $iterable->reset());
+    $expectedData = array(
+      array('node' => $node1->nid),
+      array('node' => $node2->nid),
+      array('node' => $node3->nid),
+    );
+    $this->assertIdentical($expectedData, $iterable->rows, 'Iterator display correctly evaluates for non-field row style.');
   }
 }
 

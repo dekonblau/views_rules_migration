@@ -25,4 +25,9 @@ class ViewsRulesTestIterable implements ViewsRulesIterable {
   public function evaluateRow(array $data) {
     $this->rows[] = $data;
   }
+
+  public function reset() {
+    $this->rows = array();
+    return $this;
+  }
 }
