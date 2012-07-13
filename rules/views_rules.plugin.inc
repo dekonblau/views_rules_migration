@@ -176,7 +176,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   }
 
   public function dependencies() {
-    $modules = array_flip(parent::dependencies());
+    // TODO Remove once http://drupal.org/node/1682524 is fixed.
+    $modules = array_flip(RulesPlugin::dependencies());
     $modules += array_flip(parent::dependencies());
     return array_keys($modules);
   }
