@@ -207,9 +207,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
 
   protected function importSettings($export) {
     // Import view.
-    $pluginExport = reset($export);
-    $this->info['view_name'] = $pluginExport['VIEW'];
-    $this->info['display_name'] = $pluginExport['DISPLAY'];
+    $this->info['view_name'] = $export['VIEW'];
+    $this->info['display_name'] = $export['DISPLAY'];
     $this->setUpDisplay();
     // Import row variables.
     foreach ($export['ROW VARIABLES'] as $name => $variable) {
