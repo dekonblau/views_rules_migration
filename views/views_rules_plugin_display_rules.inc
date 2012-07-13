@@ -548,20 +548,21 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       throw new views_rules_iterator_exception('Access to view display is denied.');
     }
     // Iterate through results.
-    $variable_info = $this->get_processed_rules_variable_info(TRUE);
-    foreach ($this->view->result as $row_index => $row) {
-      // Build row data.
-      $data = array();
-      if ($this->uses_fields()) {
-        foreach ($variable_info as $var_name => $info) {
-          $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $info['view key']);
+    if ($variable_info = $this->get_processed_rules_variable_info(TRUE)) {
+      foreach ($this->view->result as $row_index => $row) {
+        // Build row data.
+        $data = array();
+        if ($this->uses_fields()) {
+          foreach ($variable_info as $var_name => $info) {
+            $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $info['view key']);
+          }
         }
+        else {
+          $data[key($variable_info)] = $row->{$this->view->base_field};
+        }
+        // Evaluate row.
+        $iterable->evaluateRow($data);
       }
-      else {
-        $data[key($variable_info)] = $row->{$this->view->base_field};
-      }
-      // Evaluate row.
-      $iterable->evaluateRow($data);
     }
   }
 }
