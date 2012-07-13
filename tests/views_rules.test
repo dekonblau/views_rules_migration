@@ -386,6 +386,24 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
   }
 
   /**
+   * Tests evaluation of a view loop.
+   */
+  public function testEvaluate() {
+    $data = $this->createSiteData();
+    $expectedData = array($data['node1']->title, $data['node2']->title, $data['node3']->title);
+
+    // Test view loop with fields.
+    $comp = $this->createTestComponent();
+    $result = $comp->execute($data['term']);
+    $this->assertIdentical($expectedData, reset($result), 'View loop evaluates correctly.');
+
+    // Test view loop without fields.
+    $comp = $this->createTestNonFieldComponent();
+    $result = $comp->execute($data['term']);
+    $this->assertIdentical($expectedData, reset($result), 'Non-field view loop evaluates correctly.');
+  }
+
+  /**
    * Creates an action set to test a view loop.
    */
   protected function createTestComponent() {
