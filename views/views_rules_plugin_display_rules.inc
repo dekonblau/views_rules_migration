@@ -497,6 +497,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       $info[$var_info['name']] = array(
         'type' => $var_info['type'],
         'label' => $var_info['label'],
+        'view field' => $var,
       );
     }
     return $info;
@@ -537,13 +538,17 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       throw new views_rules_iterator_exception('Access to view display is denied.');
     }
     // Iterate through results.
-    $option_variables = $this->extract_enabled_options((array) $this->get_option('rules_variables'));
+    $variable_info = $this->get_rules_variable_info();
     foreach ($this->view->result as $row_index => $row) {
       // Build row data.
       $data = array();
-      foreach ($option_variables as $id => $info) {
-        $var_name = $info['name'];
-        $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $id);
+      if ($this->uses_fields()) {
+        foreach ($variable_info as $var_name => $info) {
+          $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $info['view field']);
+        }
+      }
+      else {
+        $data[key($variable_info)] = $row->{$this->view->base_field};
       }
       // Evaluate row.
       $iterable->evaluateRow($data);
