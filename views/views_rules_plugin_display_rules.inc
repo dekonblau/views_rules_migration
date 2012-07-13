@@ -78,14 +78,16 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     parent::options_validate($form, $form_state);
 
     $errors = array();
-    switch ($form_state['section']) {
-      case 'rules_parameter':
-        $errors = $this->parameter_options_validate($form_state['values']['options']);
-        break;
+    if (isset($form_state['values']['options'])) {
+      switch ($form_state['section']) {
+        case 'rules_parameter':
+          $errors = $this->parameter_options_validate($form_state['values']['options']);
+          break;
 
-      case 'rules_variables':
-        $errors = $this->variables_options_validate($form_state['values']['options']);
-        break;
+        case 'rules_variables':
+          $errors = $this->variables_options_validate($form_state['values']['options']);
+          break;
+      }
     }
 
     foreach ($errors as $error) {
@@ -111,7 +113,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     switch ($form_state['section']) {
       case 'rules_parameter':
       case 'rules_variables':
-        $options = $form_state['values']['options'];
+        $options = isset($form_state['values']['options']) ? $form_state['values']['options'] : array();
         $this->set_option($form_state['section'], $options);
         break;
     }
@@ -346,25 +348,27 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   function variables_options_validate($options) {
     $errors = array();
 
-    if ($missing = array_diff_key($this->get_field_labels(), $options)) {
-      foreach ($missing as $id => $label) {
-        $errors[] = array(
-          'id' => $id,
-          'message' => t('The %var field is not configured.', array('%var' => $label)),
-        );
+    if ($this->uses_fields()) {
+      if ($missing = array_diff_key($this->get_field_labels(), $options)) {
+        foreach ($missing as $id => $label) {
+          $errors[] = array(
+            'id' => $id,
+            'message' => t('The %var field is not configured.', array('%var' => $label)),
+          );
+        }
       }
+      $options = $this->extract_enabled_options($options);
+      $errors = array_merge($errors, $this->validate_machine_name($options));
+      // Send parameter names to unique names validation to make sure variable
+      // names do not conflict with parameter names.
+      $parameter_names = array();
+      foreach (((array) $this->get_option('rules_parameter')) as $parameter) {
+        $parameter_names[] = $parameter['name'];
+      }
+      $errors = array_merge($errors, $this->validate_unique_names($options, $parameter_names));
+      // Ensure enabled options are fully specified.
+      $errors = array_merge($errors, $this->validate_complete_variables($options));
     }
-    $options = $this->extract_enabled_options($options);
-    $errors = array_merge($errors, $this->validate_machine_name($options));
-    // Send parameter names to unique names validation to make sure variable
-    // names do not conflict with parameter names.
-    $parameter_names = array();
-    foreach (((array) $this->get_option('rules_parameter')) as $parameter) {
-      $parameter_names[] = $parameter['name'];
-    }
-    $errors = array_merge($errors, $this->validate_unique_names($options, $parameter_names));
-    // Ensure enabled options are fully specified.
-    $errors = array_merge($errors, $this->validate_complete_variables($options));
 
     return $errors;
   }
