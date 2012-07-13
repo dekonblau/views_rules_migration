@@ -1,4 +1,4 @@
-{ "views_rules_non_field_test" : {
+{ "view_loop_non_field_test" : {
     "PLUGIN" : "action set",
     "REQUIRES" : [ "views_rules", "rules" ],
     "USES VARIABLES" : {
