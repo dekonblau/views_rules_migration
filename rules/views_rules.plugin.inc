@@ -35,7 +35,7 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   protected function setUpDisplay() {
     if (!$this->view && $this->info['view_name'] && $this->info['display_name']) {
       $view = views_get_view($this->info['view_name']);
-      if ($view->set_display($this->info['display_name'])) {
+      if ($view && $view->set_display($this->info['display_name'])) {
         $this->view = $view;
       }
     }
@@ -175,33 +175,43 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     ));
   }
 
+  public function dependencies() {
+    $modules = array_flip(parent::dependencies());
+    $modules += array_flip(parent::dependencies());
+    return array_keys($modules);
+  }
+
+  protected function exportChildren($key = NULL) {
+    return parent::exportChildren('DO');
+  }
+
   protected function exportFlat() {
-    return $this->isRoot();
+    return FALSE;
   }
 
   protected function exportSettings() {
     $export = array();
     $export['VIEW'] = $this->info['view_name'];
     $export['DISPLAY'] = $this->info['display_name'];
+    $export += parent::exportSettings();
     $export['ROW VARIABLES'] = array();
     foreach ($this->rowVariables() as $name => $info) {
       $export['ROW VARIABLES'][$info['source name']][$name] = $info['label'];
     }
-    $export += parent::exportSettings();
     return $export;
   }
 
-  public function import(array $export) {
-    // Import view configuration before importing and setting up.
+  protected function importChildren($export, $key = NULL) {
+    parent::importChildren($export, 'DO');
+  }
+
+  protected function importSettings($export) {
+    // Import view.
     $pluginExport = reset($export);
     $this->info['view_name'] = $pluginExport['VIEW'];
     $this->info['display_name'] = $pluginExport['DISPLAY'];
     $this->setUpDisplay();
-    // Import variables.
-    parent::import($export);
-  }
-
-  protected function importSettings($export) {
+    // Import row variables.
     foreach ($export['ROW VARIABLES'] as $name => $variable) {
       $this->settings[$name . ':var'] = key($variable);
       $this->settings[$name . ':label'] = current($variable);
