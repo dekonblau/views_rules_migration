@@ -169,14 +169,7 @@ function views_rules_test_views_default_views() {
       'label' => 'Term ID',
       'name' => 'tid',
     ),
-    'type' => array(
-      'enabled' => 1,
-      'type' => 'token',
-      'label' => 'Content type',
-      'name' => 'type',
-    ),
   );
-  $handler->display->display_options['rules_variables'] = array();
 
   $export['views_rules_non_field_test'] = $view;
 
