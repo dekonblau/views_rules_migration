@@ -501,4 +501,26 @@ class ViewsRulesCollectActionTestCase extends ViewsRulesBaseTestCase {
       'group' => 'Views Rules',
     );
   }
+
+  protected function setUp() {
+    parent::setUp('views_rules_test');
+  }
+
+  /**
+   * Tests data collector.
+   */
+  public function testCollector() {
+    $data = $this->createSiteData();
+    /** @var $iterator views_rules_plugin_display_rules */
+    $iterator = views_rules_get_view('views_rules_test:views_rules_1')->display_handler;
+    $collector = new ViewsRulesResultCollector(array_keys($iterator->get_rules_variable_info()));
+    $iterator->execute_iterator(array($data['term']->tid), $collector);
+    $expectedData = array();
+    foreach (array('nid', 'title') as $field) {
+      foreach (array('node1', 'node2', 'node3') as $dataKey) {
+        $expectedData[$field][] = $data[$dataKey]->$field;
+      }
+    }
+    $this->assertIdentical($expectedData, $collector->getData(), 'Collector correctly returns executed view data.');
+  }
 }
