@@ -290,7 +290,6 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $iterator = views_rules_get_view('views_rules_test:views_rules_1')->display_handler;
 
     // Create sample items.
-    module_enable(array('taxonomy'));
     $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
     $term = (object) array(
       'name' => 'Term 1',
