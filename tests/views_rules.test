@@ -413,7 +413,7 @@ class ViewsRulesViewLoopTestCase extends DrupalWebTestCase {
       ),
     );
     $provides = array('list');
-    $loop = views_rules_loop('views_rules_test', 'views_rules_1', array(
+    $loop = views_rules_loop('views_rules_non_field_test', 'views_rules_1', array(
       'tid:select' => 'term:tid',
       'node:var' => 'node',
       'node:label' => 'Node',
