@@ -5,9 +5,40 @@
  */
 
 /**
+ * Base test for Views Rules.
+ */
+abstract class ViewsRulesBaseTestCase extends DrupalWebTestCase {
+  /**
+   * Creates site objects.
+   */
+  protected function createSiteData() {
+    $data = array();
+
+    // Create sample items.
+    $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
+    $data['term'] = (object) array(
+      'name' => 'Term 1',
+      'vid' => $vocabulary->vid,
+      'vocabulary_machine_name' => 'tags',
+    );
+    taxonomy_term_save($data['term']);
+    $nodeBase = array(
+      'type' => 'article',
+      'language' => LANGUAGE_NONE,
+      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $data['term']->tid))),
+    );
+    $data['node1'] = $this->drupalCreateNode(array('title' => 'Node 1') + $nodeBase);
+    $data['node2'] = $this->drupalCreateNode(array('title' => 'Node 2') + $nodeBase);
+    $data['node3'] = $this->drupalCreateNode(array('title' => 'Node 3') + $nodeBase);
+
+    return $data;
+  }
+}
+
+/**
  * Framework function tests.
  */
-class ViewsRulesFrameworkTestCase extends DrupalWebTestCase {
+class ViewsRulesFrameworkTestCase extends ViewsRulesBaseTestCase {
   /**
    * Declares test.
    */
@@ -77,7 +108,7 @@ class ViewsRulesFrameworkTestCase extends DrupalWebTestCase {
 /**
  * Views display tests.
  */
-class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
+class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
   /**
    * Declares test.
    */
@@ -290,27 +321,13 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
     $iterator = views_rules_get_view('views_rules_test:views_rules_1')->display_handler;
 
     // Create sample items.
-    $vocabulary = taxonomy_vocabulary_machine_name_load('tags');
-    $term = (object) array(
-      'name' => 'Term 1',
-      'vid' => $vocabulary->vid,
-      'vocabulary_machine_name' => 'tags',
-    );
-    taxonomy_term_save($term);
-    $nodeBase = array(
-      'type' => 'article',
-      'language' => LANGUAGE_NONE,
-      'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $term->tid))),
-    );
-    $node1 = $this->drupalCreateNode(array('title' => 'Node 1') + $nodeBase);
-    $node2 = $this->drupalCreateNode(array('title' => 'Node 2') + $nodeBase);
-    $node3 = $this->drupalCreateNode(array('title' => 'Node 3') + $nodeBase);
+    $data = $this->createSiteData();
 
     // Disable nid and test executing iterator.
     $option = $iterator->get_option('rules_variables');
     $option['nid']['enabled'] = 0;
     $iterator->set_option('rules_variables', $option);
-    $iterator->execute_iterator(array($term->tid), $iterable);
+    $iterator->execute_iterator(array($data['term']->tid), $iterable);
     $expectedData = array(
       array('title' => 'Node 1'),
       array('title' => 'Node 2'),
@@ -320,11 +337,11 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
 
     // Check execution for non-field row styles.
     $iterator = views_rules_get_view('views_rules_non_field_test:views_rules_1')->display_handler;
-    $iterator->execute_iterator(array($term->tid), $iterable->reset());
+    $iterator->execute_iterator(array($data['term']->tid), $iterable->reset());
     $expectedData = array(
-      array('node' => $node1->nid),
-      array('node' => $node2->nid),
-      array('node' => $node3->nid),
+      array('node' => $data['node1']->nid),
+      array('node' => $data['node2']->nid),
+      array('node' => $data['node3']->nid),
     );
     $this->assertIdentical($expectedData, $iterable->rows, 'Iterator display correctly evaluates for non-field row style.');
   }
@@ -333,7 +350,7 @@ class ViewsRulesViewsDisplayTestCase extends DrupalWebTestCase {
 /**
  * Rules plugin tests.
  */
-class ViewsRulesViewLoopTestCase extends DrupalWebTestCase {
+class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
   /**
    * Declares test.
    */
@@ -425,7 +442,7 @@ class ViewsRulesViewLoopTestCase extends DrupalWebTestCase {
 /**
  * Rules plugin tests.
  */
-class ViewsRulesCollectActionTestCase extends DrupalWebTestCase {
+class ViewsRulesCollectActionTestCase extends ViewsRulesBaseTestCase {
   /**
    * Declares test.
    */
