@@ -22,6 +22,8 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
       drupal_goto($pathAddView);
     }
 
+    // Build form with "Save" button.
+    $options['init'] = FALSE;
     parent::form($form, $form_state, $options, $iterator);
 
     // Add row variable form.
