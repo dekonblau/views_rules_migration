@@ -42,8 +42,6 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   }
 
   public function integrityCheck() {
-    parent::integrityCheck();
-
     // Check view is configured.
     $view = $this->getView();
     if (!$view) {
@@ -61,6 +59,8 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     if (!$view->validate()) {
       throw new RulesIntegrityException(t('%plugin: Configured view does not validate.', array('%plugin' => $this->getPluginName())), $this);
     }
+
+    parent::integrityCheck();
 
     // Check row variables.
     /** @var $display views_rules_iterator */
