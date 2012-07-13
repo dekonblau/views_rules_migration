@@ -345,6 +345,59 @@ class ViewsRulesViewLoopTestCase extends DrupalWebTestCase {
       'group' => 'Views Rules',
     );
   }
+
+  /**
+   * Creates an action set to test a view loop.
+   */
+  protected function createTestComponent() {
+    $variables = array(
+      'term' => array(
+        'type' => 'taxonomy_term',
+        'label' => 'Term',
+      ),
+      'list' => array(
+        'type' => 'list',
+        'label' => 'List',
+        'parameter' => FALSE,
+      ),
+    );
+    $provides = array('list');
+    $loop = views_rules_loop('views_rules_test', 'views_rules_1', array(
+      'tid:select' => 'term:tid',
+      'type' => 'article',
+      'nid:var' => 'nid',
+      'nid:label' => 'Node ID',
+      'title:var' => 'title',
+      'title:label' => 'Title',
+    ));
+    return rules_action_set($variables, $provides)
+      ->action($loop->action('list_add', array('list:select' => 'list', 'item:select' => 'title')));
+  }
+
+  /**
+   * Creates an action set to test a view loop for a non-field view.
+   */
+  protected function createTestNonFieldComponent() {
+    $variables = array(
+      'term' => array(
+        'type' => 'taxonomy_term',
+        'label' => 'Term',
+      ),
+      'list' => array(
+        'type' => 'list',
+        'label' => 'List',
+        'parameter' => FALSE,
+      ),
+    );
+    $provides = array('list');
+    $loop = views_rules_loop('views_rules_test', 'views_rules_1', array(
+      'tid:select' => 'term:tid',
+      'node:var' => 'node',
+      'node:label' => 'Node',
+    ));
+    return rules_action_set($variables, $provides)
+      ->action($loop->action('list_add', array('list:select' => 'list', 'item:select' => 'node:title')));
+  }
 }
 
 /**
