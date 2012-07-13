@@ -18,7 +18,7 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
     $op = arg($baseCount + 2);
     if ($op == 'add') {
       // Redirect to extended path.
-      $pathAddView = RulesPluginUI::path($this->element->root()->name, 'add-view-loop', $this->element->parentElement(), $this->element->plugin());
+      $pathAddView = RulesPluginUI::path($this->element->root()->name, 'add-view-loop', $this->element->parentElement());
       drupal_goto($pathAddView);
     }
 

@@ -16,10 +16,14 @@ function _views_rules_rules_ui_menu_alter(&$items, $base_path, $base_count) {
 
   // Extend "add".
   $items[$base_path . '/manage/%rules_config/add-view-loop/%rules_element'] = array(
-    'page arguments' => array('views_rules_add_view_loop') + $add_item['page arguments'],
+    'title' => 'Add a new !plugin',
+    'title callback' => 't',
+    'title arguments' => array('!plugin' => t('view loop')),
+    'page arguments' => array_filter(array('views_rules_add_view_loop')) + $add_item['page arguments'],
     'file' => 'rules/views_rules.rules_admin.inc',
     'file path' => drupal_get_path('module', 'views_rules'),
   ) + $add_item;
+  $items[$base_path . '/manage/%rules_config/add-view-loop/%rules_element']['page arguments'][2] = 'view loop';
 }
 
 /**
