@@ -27,20 +27,6 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     $this->setUp();
   }
 
-  protected function setUp() {
-    parent::setUp();
-    $this->setUpDisplay();
-  }
-
-  protected function setUpDisplay() {
-    if (!$this->view && $this->info['view_name'] && $this->info['display_name']) {
-      $view = views_get_view($this->info['view_name']);
-      if ($view && $view->set_display($this->info['display_name'])) {
-        $this->view = $view;
-      }
-    }
-  }
-
   public function integrityCheck() {
     // Check view is configured.
     $view = $this->getView();
@@ -95,6 +81,7 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
       rules_log($e->msg, $e->args, $e->severity);
       rules_log('Unable to evaluate %name.', array('%name' => $this->getPluginName()), RulesLog::WARN, $this);
     }
+    $this->resetView();
   }
 
   public function evaluateRow(array $data) {
@@ -150,18 +137,27 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
   }
 
   /**
+   * @param bool $reset
+   *   Whether to reset the iterator by retrieving a new one.
    * @return view
    */
-  public function getView() {
-    $this->forceSetUp();
+  public function getView($reset = FALSE) {
+    if (!isset($this->view) || $reset) {
+      $view = views_get_view($this->info['view_name'], $reset);
+      if ($view && $view->set_display($this->info['display_name'])) {
+        $this->view = $view;
+      }
+    }
     return $this->view;
   }
 
   /**
+   * @param bool $reset
+   *   Whether to reset the iterator by retrieving a new one.
    * @return views_rules_iterator
    */
-  public function getViewIterator() {
-    if ($view = $this->getView()) {
+  public function getViewIterator($reset = FALSE) {
+    if ($view = $this->getView($reset)) {
       return $view->display_handler;
     }
     return NULL;
@@ -210,13 +206,21 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     // Import view.
     $this->info['view_name'] = $export['VIEW'];
     $this->info['display_name'] = $export['DISPLAY'];
-    $this->setUpDisplay();
     // Import row variables.
     foreach ($export['ROW VARIABLES'] as $name => $variable) {
       $this->settings[$name . ':var'] = key($variable);
       $this->settings[$name . ':label'] = current($variable);
     }
     parent::importSettings($export);
+  }
+
+  public function resetInternalCache() {
+    parent::resetInternalCache();
+    $this->resetView();
+  }
+
+  public function resetView() {
+    $this->view = NULL;
   }
 }
 

@@ -409,6 +409,13 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
     $comp = $this->createTestNonFieldComponent();
     $result = $comp->execute($data['term']);
     $this->assertIdentical($expectedData, reset($result), 'Non-field view loop evaluates correctly.');
+
+    // Test evaluating view loop after data has changed.
+    $newNode = (array) $data['node1'];
+    $newNode = array_intersect_key($newNode, array_flip(array('title', 'type', 'field_tags')));
+    $this->drupalCreateNode($newNode);
+    $result = $comp->execute($data['term']);
+    $this->assertNotIdentical($expectedData, reset($result), 'View loop result data is not prematurely cached.');
   }
 
   /**
