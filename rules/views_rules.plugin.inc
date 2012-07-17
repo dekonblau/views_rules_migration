@@ -41,7 +41,6 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
     }
 
     // Validate view display.
-    /** @var $display views_plugin_display */
     if (!$view->validate()) {
       throw new RulesIntegrityException(t('%plugin: Configured view does not validate.', array('%plugin' => $this->getPluginName())), $this);
     }
