@@ -212,6 +212,13 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
     $this->drupalPost($variablePath, $edit, t('Apply'));
     $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable names must not overlap with parameter names.');
 
+    // Test reserved name.
+    $edit = array(
+      'options[nid][name]' => 'views_rules_display',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'The variable name "views_rules_display" is reserved.');
+
     // Test rearranging variables.
     $edit = array(
       'nid[weight]' => '2',
@@ -293,6 +300,13 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
     $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter names must not overlap.');
+
+    // Test reserved name.
+    $edit = array(
+      'options[type][name]' => 'views_rules_display',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'The parameter name "views_rules_display" is reserved.');
 
     // Test rearranging parameters.
     $edit = array(
