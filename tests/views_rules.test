@@ -402,7 +402,7 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
     $this->assertUrl('admin/config/workflow/rules/components/manage/test/add-view-loop/1', array(), 'Form redirects when adding a view loop.');
 
     // Create view loop.
-    $this->drupalPost(NULL, array('display' => 'views_rules_non_field_test:views_rules_1'), t('Continue'));
+    $this->drupalPost(NULL, array('views_rules_display' => 'views_rules_non_field_test:views_rules_1'), t('Continue'));
     $this->drupalPost(NULL, array(), t('Switch to data selection'));
     $this->drupalPost(NULL, array('parameter[tid][settings][tid:select]' => 'term:tid'), t('Save'));
     $this->assertUrl('admin/config/workflow/rules/components/manage/test', array(), 'View loop creation form is saved.');
@@ -562,13 +562,13 @@ class ViewsRulesCollectActionTestCase extends ViewsRulesBaseTestCase {
     $provides = array('list1', 'list2');
     $comp = rules_action_set($variables, $provides)
       ->action('views_rules_collect_rows', array(
-        'display' => 'views_rules_test:views_rules_1',
-        'param_tid:select' => 'term:tid',
-        'param_type' => 'article',
-        'list_nid:var' => 'list_nid',
-        'list_nid:label' => 'List of node IDs',
-        'list_title:var' => 'list_title',
-        'list_title:label' => 'List of node titles',
+        'views_rules_display' => 'views_rules_test:views_rules_1',
+        'tid:select' => 'term:tid',
+        'type' => 'article',
+        'nid:var' => 'list_nid',
+        'nid:label' => 'List of node IDs',
+        'title:var' => 'list_title',
+        'title:label' => 'List of node titles',
       ))
       ->action('data_set', array('data:select' => 'list1', 'value:select' => 'list_nid'))
       ->action('data_set', array('data:select' => 'list2', 'value:select' => 'list_title'));

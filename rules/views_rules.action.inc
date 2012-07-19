@@ -25,11 +25,7 @@ function views_rules_collect_rows($view_display_id) {
   $iterator->execute_iterator($args, $collector);
 
   // Return data.
-  $data = array();
-  foreach ($collector->getData() as $var_name => $var_data) {
-    $data['list_' . $var_name] = $var_data;
-  }
-
+  $data = $collector->getData();
   return $data;
 }
 
@@ -38,7 +34,7 @@ function views_rules_collect_rows($view_display_id) {
  */
 function views_rules_collect_rows_info_alter(&$info, RulesAbstractPlugin $element) {
   // Add view display variables.
-  if (!empty($element->settings['display']) && $view = views_rules_get_view($element->settings['display'])) {
+  if (!empty($element->settings['views_rules_display']) && $view = views_rules_get_view($element->settings['views_rules_display'])) {
     // Abort if view does not validate.
     if (!$view->validate()) {
       return;
@@ -47,14 +43,16 @@ function views_rules_collect_rows_info_alter(&$info, RulesAbstractPlugin $elemen
     $iterator = $view->display_handler;
     // Add view arguments.
     foreach ($iterator->get_rules_parameter_info() as $var_name => $var_info) {
-      $info['parameter']['param_' . $var_name] = $var_info;
+      $info['parameter'][$var_name] = $var_info;
     }
     // Add view row variable lists.
     foreach ($iterator->get_rules_variable_info() as $var_name => $var_info) {
       $type = $var_info['type'];
-      $info['provides']['list_' . $var_name] = array(
+      $label = $var_info['label'];
+      $info['provides'][$var_name] = array(
         // Change variable to list.
         'type' => "list<$type>",
+        'label' => t('List of @label', array('@label' => $label)),
       ) + $var_info;
     }
   }

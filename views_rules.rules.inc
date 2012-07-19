@@ -31,7 +31,7 @@ function views_rules_rules_action_info() {
       'group' => t('Views Rules'),
       // Declare basic 'parameter' and 'provides' to be altered at evaluation.
       'parameter' => array(
-        'display' => array(
+        'views_rules_display' => array(
           'label' => t('View iterator display'),
           'type' => 'text',
           'options list' => 'views_rules_list_iterators',
