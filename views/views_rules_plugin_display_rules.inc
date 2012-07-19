@@ -406,6 +406,13 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
           'message' => t('The machine-readable name %name is already taken.', array('%name' => $name)),
         );
       }
+      elseif ($name == 'views_rules_display') {
+        $errors[] = array(
+          'id' => $id,
+          'element' => 'name',
+          'message' => t('The machine-readable name %name is reserved for internal use.', array('%name' => $name)),
+        );
+      }
       else {
         $names[$name] = $name;
       }
