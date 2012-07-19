@@ -581,3 +581,53 @@ class ViewsRulesCollectActionTestCase extends ViewsRulesBaseTestCase {
     $this->assertIdentical($expectedList2, next($return), 'Collect action correctly returns all lists of data.');
   }
 }
+
+/**
+ * Test suite for updates.
+ */
+class ViewsRulesUpdateTestCase extends ViewsRulesBaseTestCase {
+  /**
+   * Declares test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Update tests',
+      'description' => 'Tests module updates.',
+      'group' => 'Views Rules',
+    );
+  }
+
+  protected function setUp() {
+    parent::setUp('views_rules_test');
+    module_load_all_includes('install');
+  }
+
+  /**
+   * Tests views_rules_update_clean_collect_action_variable_names().
+   */
+  public function testCleanCollectActionVariableNames() {
+    $action = rules_action('views_rules_collect_rows', array(
+      'views_rules_display' => 'views_rules_test:views_rules_1',
+      'tid:select' => 'term:tid',
+      'type' => 'article',
+      'nid:var' => 'list_nid',
+      'nid:label' => 'List of node IDs',
+      'title:var' => 'list_title',
+      'title:label' => 'List of node titles',
+    ));
+    $comp = rules_action_set(array('term' => array('type' => 'taxonomy_term', 'label' => 'Term')))
+      ->action($action);
+    views_rules_update_clean_collect_action_variable_names($comp);
+    $expectedSettings = array(
+      'views_rules_display' => 'views_rules_test:views_rules_1',
+      'tid:select' => 'term:tid',
+      'type' => 'article',
+      'nid:var' => 'list_nid',
+      'nid:label' => 'List of node IDs',
+      'title:var' => 'list_title',
+      'title:label' => 'List of node titles',
+    );
+    $updatedSettings = array_intersect_key($action->settings, array_flip(array_filter(array_keys($action->settings), 'element_child')));
+    $this->assertIdentical($expectedSettings, $updatedSettings, 'Prefixed collect action variable names are cleaned.');
+  }
+}
