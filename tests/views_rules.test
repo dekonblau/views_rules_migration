@@ -426,6 +426,8 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
     $comp->name = 'view_loop_test';
     $export = $this->getFileContents('view_loop_test.export.txt');
     $this->assertEqual($export, $comp->export(), 'View loop exports correctly.');
+
+    $this->assertTrue(in_array('views_rules', $comp->dependencies()), 'View loop depends on Views Rules.');
   }
 
   /**
