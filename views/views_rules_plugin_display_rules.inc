@@ -396,7 +396,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    */
   function validate_unique_names($options, $additional = array()) {
     $errors = array();
-    $names = empty($additional) ? array() : array_combine($additional, $additional);
+    $names = drupal_map_assoc($additional);
     foreach ($options as $id => $info) {
       $name = $info['name'];
       if (isset($names[$name])) {
@@ -404,6 +404,13 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
           'id' => $id,
           'element' => 'name',
           'message' => t('The machine-readable name %name is already taken.', array('%name' => $name)),
+        );
+      }
+      elseif ($name == 'views_rules_display') {
+        $errors[] = array(
+          'id' => $id,
+          'element' => 'name',
+          'message' => t('The machine-readable name %name is reserved for internal use.', array('%name' => $name)),
         );
       }
       else {

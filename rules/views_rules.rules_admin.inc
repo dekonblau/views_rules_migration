@@ -44,7 +44,7 @@ function views_rules_add_view_loop($form, &$form_state, $rules_config, $plugin_n
     $form_state += array('parent_element' => $parent, 'plugin' => $plugin_name);
 
     // Add view selector.
-    $form['display'] = array(
+    $form['views_rules_display'] = array(
       '#type' => 'select',
       '#title' => t('Views iterator display'),
       '#options' => views_rules_list_iterators(),
@@ -79,7 +79,7 @@ function views_rules_add_view_loop($form, &$form_state, $rules_config, $plugin_n
  */
 function views_rules_add_view_loop_submit($form, &$form_state) {
   if (!isset($form_state['rules_element'])) {
-    $display = $form_state['values']['display'];
+    $display = $form_state['values']['views_rules_display'];
     list($viewName, $displayName) = explode(':', $display, 2);
     $element = views_rules_loop($viewName, $displayName);
 

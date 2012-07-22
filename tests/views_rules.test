@@ -161,6 +161,7 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
   public function testVariableForm() {
     $id = 'views_rules_test:views_rules_1';
     $editPath = 'admin/structure/views/view/views_rules_test/edit';
+    $editUrl = url($editPath, array('absolute' => TRUE));
     $variablePath = 'admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_variables';
     $rearrangePath = 'admin/structure/views/nojs/rearrange/views_rules_test/views_rules_1/field';
 
@@ -195,21 +196,28 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
       'options[nid][name]' => '#',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Only valid variable names can be saved.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Only valid variable names can be saved.');
 
     // Test variable name uniqueness.
     $edit = array(
       'options[nid][name]' => 'title',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable names must not overlap.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable names must not overlap.');
 
     // Test variable name uniqueness with respect to parameters.
     $edit = array(
       'options[nid][name]' => 'tid',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable names must not overlap with parameter names.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable names must not overlap with parameter names.');
+
+    // Test reserved name.
+    $edit = array(
+      'options[nid][name]' => 'views_rules_display',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'The variable name "views_rules_display" is reserved.');
 
     // Test rearranging variables.
     $edit = array(
@@ -226,17 +234,17 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
       'options[nid][type]' => '',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable type cannot be empty.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable type cannot be empty.');
     $edit = array(
       'options[nid][label]' => '',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable label cannot be empty.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable label cannot be empty.');
     $edit = array(
       'options[nid][name]' => '',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Variable name cannot be empty.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable name cannot be empty.');
     $edit = array(
       'options[nid][enabled]' => FALSE,
     );
@@ -259,6 +267,7 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
   public function testParameterForm() {
     $id = 'views_rules_test:views_rules_1';
     $editPath = 'admin/structure/views/view/views_rules_test/edit';
+    $editUrl = url($editPath, array('absolute' => TRUE));
     $variablePath = 'admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_parameter';
     $rearrangePath = 'admin/structure/views/nojs/rearrange/views_rules_test/views_rules_1/argument';
 
@@ -290,7 +299,14 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
       'options[type][name]' => 'tid',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter names must not overlap.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter names must not overlap.');
+
+    // Test reserved name.
+    $edit = array(
+      'options[type][name]' => 'views_rules_display',
+    );
+    $this->drupalPost($variablePath, $edit, t('Apply'));
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'The parameter name "views_rules_display" is reserved.');
 
     // Test rearranging parameters.
     $edit = array(
@@ -307,17 +323,17 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
       'options[type][type]' => '',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter type cannot be empty.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter type cannot be empty.');
     $edit = array(
       'options[type][label]' => '',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter label cannot be empty.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter label cannot be empty.');
     $edit = array(
       'options[type][name]' => '',
     );
     $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editPath, $this->getUrl(), 'Parameter name cannot be empty.');
+    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter name cannot be empty.');
   }
 
   /**
@@ -386,7 +402,7 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
     $this->assertUrl('admin/config/workflow/rules/components/manage/test/add-view-loop/1', array(), 'Form redirects when adding a view loop.');
 
     // Create view loop.
-    $this->drupalPost(NULL, array('display' => 'views_rules_non_field_test:views_rules_1'), t('Continue'));
+    $this->drupalPost(NULL, array('views_rules_display' => 'views_rules_non_field_test:views_rules_1'), t('Continue'));
     $this->drupalPost(NULL, array(), t('Switch to data selection'));
     $this->drupalPost(NULL, array('parameter[tid][settings][tid:select]' => 'term:tid'), t('Save'));
     $this->assertUrl('admin/config/workflow/rules/components/manage/test', array(), 'View loop creation form is saved.');
@@ -426,6 +442,8 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
     $comp->name = 'view_loop_test';
     $export = $this->getFileContents('view_loop_test.export.txt');
     $this->assertEqual($export, $comp->export(), 'View loop exports correctly.');
+
+    $this->assertTrue(in_array('views_rules', $comp->dependencies()), 'View loop depends on Views Rules.');
   }
 
   /**
@@ -544,13 +562,13 @@ class ViewsRulesCollectActionTestCase extends ViewsRulesBaseTestCase {
     $provides = array('list1', 'list2');
     $comp = rules_action_set($variables, $provides)
       ->action('views_rules_collect_rows', array(
-        'display' => 'views_rules_test:views_rules_1',
-        'param_tid:select' => 'term:tid',
-        'param_type' => 'article',
-        'list_nid:var' => 'list_nid',
-        'list_nid:label' => 'List of node IDs',
-        'list_title:var' => 'list_title',
-        'list_title:label' => 'List of node titles',
+        'views_rules_display' => 'views_rules_test:views_rules_1',
+        'tid:select' => 'term:tid',
+        'type' => 'article',
+        'nid:var' => 'list_nid',
+        'nid:label' => 'List of node IDs',
+        'title:var' => 'list_title',
+        'title:label' => 'List of node titles',
       ))
       ->action('data_set', array('data:select' => 'list1', 'value:select' => 'list_nid'))
       ->action('data_set', array('data:select' => 'list2', 'value:select' => 'list_title'));
@@ -561,5 +579,55 @@ class ViewsRulesCollectActionTestCase extends ViewsRulesBaseTestCase {
     $return = $comp->execute($data['term']);
     $this->assertIdentical($expectedList1, reset($return), 'Collect action correctly returns a list of data.');
     $this->assertIdentical($expectedList2, next($return), 'Collect action correctly returns all lists of data.');
+  }
+}
+
+/**
+ * Test suite for updates.
+ */
+class ViewsRulesUpdateTestCase extends ViewsRulesBaseTestCase {
+  /**
+   * Declares test.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Update tests',
+      'description' => 'Tests module updates.',
+      'group' => 'Views Rules',
+    );
+  }
+
+  protected function setUp() {
+    parent::setUp('views_rules_test');
+    module_load_all_includes('install');
+  }
+
+  /**
+   * Tests views_rules_update_clean_collect_action_variable_names().
+   */
+  public function testCleanCollectActionVariableNames() {
+    $action = rules_action('views_rules_collect_rows', array(
+      'views_rules_display' => 'views_rules_test:views_rules_1',
+      'tid:select' => 'term:tid',
+      'type' => 'article',
+      'nid:var' => 'list_nid',
+      'nid:label' => 'List of node IDs',
+      'title:var' => 'list_title',
+      'title:label' => 'List of node titles',
+    ));
+    $comp = rules_action_set(array('term' => array('type' => 'taxonomy_term', 'label' => 'Term')))
+      ->action($action);
+    views_rules_update_clean_collect_action_variable_names($comp);
+    $expectedSettings = array(
+      'views_rules_display' => 'views_rules_test:views_rules_1',
+      'tid:select' => 'term:tid',
+      'type' => 'article',
+      'nid:var' => 'list_nid',
+      'nid:label' => 'List of node IDs',
+      'title:var' => 'list_title',
+      'title:label' => 'List of node titles',
+    );
+    $updatedSettings = array_intersect_key($action->settings, array_flip(array_filter(array_keys($action->settings), 'element_child')));
+    $this->assertIdentical($expectedSettings, $updatedSettings, 'Prefixed collect action variable names are cleaned.');
   }
 }

@@ -112,9 +112,34 @@ function views_rules_get_view($view_display_id, $reset = FALSE) {
 }
 
 /**
- * Creates an instance of ViewsRulesLoop.
+ * Creates a view loop.
  *
- * This function is as used in a fluent interface.
+ * This function is as used in a fluent interface. Note that, much like the loop
+ * provided by Rules, a view loop is used as an action.
+ *
+ * @param string $view_name
+ *   Machine name of the view to use.
+ * @param string $display_name
+ *   Machine name of the specific display in the view to use.
+ * @param array $settings
+ *   Parameter and row variable settings. Specify view contextual filters as
+ *   parameters, i.e. with data selectors, data processors, etc., using variable
+ *   machine names configured in the Rules display parameter info. Specify
+ *   available row variables in the syntax of provided variables, using variable
+ *   machine names configured in the Rules display variable info. The following
+ *   is an example of settings in a rule with variable "term" of type Taxonomy
+ *   term, given a view with contextual filter "tid" for term ID and row
+ *   variable "node" for node ID (configured as variable type Node):
+ *
+ *   <code>
+ *     array(
+ *       'tid:select' => 'term:tid',
+ *       'node:var' => 'node',
+ *       'node:label' => 'Node',
+ *     )
+ *   </code>
+ *
+ * @return ViewsRulesLoop
  */
 function views_rules_loop($view_name, $display_name, array $settings = array()) {
   return new ViewsRulesLoop($view_name, $display_name, $settings);

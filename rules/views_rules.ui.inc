@@ -142,21 +142,21 @@ function views_rules_collect_rows_form_alter(&$form, &$form_state, $options, Rul
     $form['submit'] = array(
       '#type' => 'submit',
       '#value' => t('Continue'),
-      '#limit_validation_errors' => array(array('parameter', 'display')),
+      '#limit_validation_errors' => array(array('parameter', 'views_rules_display')),
       '#submit' => array('rules_form_submit_rebuild'),
     );
   }
   else {
     // Add parameter fieldset label.
-    if (array_diff(element_children($form['parameter']), array('display'))) {
+    if (array_diff(element_children($form['parameter']), array('views_rules_display'))) {
       $help = '<div class="description">' . t('Adjust the names and labels of row variables (from the view) available in each iteration of the view loop, but note that renaming of already utilizied variables invalidates the existing uses.') . '</div>';
-      $form['parameter']['display']['#suffix'] = '<h4 class="rules-form-heading">' . t('Parameters') . '</h4>' . $help;
+      $form['parameter']['views_rules_display']['#suffix'] = '<h4 class="rules-form-heading">' . t('Parameters') . '</h4>' . $help;
     }
     // Change the display parameter to be not editable any more.
-    $form['parameter']['display']['settings']['#access'] = FALSE;
+    $form['parameter']['views_rules_display']['settings']['#access'] = FALSE;
     $options = views_rules_list_iterators(FALSE);
-    $display_label = isset($options[$element->settings['display']]) ? $options[$element->settings['display']] : '';
-    $form['parameter']['display']['info'] = array(
+    $display_label = isset($options[$element->settings['views_rules_display']]) ? $options[$element->settings['views_rules_display']] : '';
+    $form['parameter']['views_rules_display']['info'] = array(
       '#prefix' => '<p>',
       '#markup' => t('!selector_label %selector', array('!selector_label' => '<strong>' . t('Selected view display:') . '</strong>', '%selector' => $display_label)),
       '#suffix' => '</p>',
