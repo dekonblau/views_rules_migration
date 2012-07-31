@@ -5,14 +5,6 @@
  */
 
 /**
- * Implements hook_rules_ui_menu_alter().
- */
-function views_rules_rules_ui_menu_alter(&$items, $base_path, $base_count) {
-  module_load_include('inc', 'views_rules', 'rules/views_rules.rules_admin');
-  _views_rules_rules_ui_menu_alter($items, $base_path, $base_count);
-}
-
-/**
  * Gets data types.
  */
 function views_rules_data_type_options($items = NULL) {

@@ -13,6 +13,9 @@ function views_rules_rules_plugin_info() {
       'class' => 'ViewsRulesLoop',
       'embeddable' => 'RulesActionContainer',
       'extenders' => array(
+        'RulesPluginFactoryUIInterface' => array(
+          'class' => 'ViewsRulesLoopFactoryUI',
+        ),
         'RulesPluginUIInterface' => array(
           'class' => 'ViewsRulesLoopUI',
         ),
