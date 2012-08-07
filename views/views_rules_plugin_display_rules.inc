@@ -219,7 +219,10 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    * Builds the form element for a single parameter.
    */
   function get_parameter_form($name, $label, $info, $optional = FALSE) {
-    return $this->build_variable_form($name, $label, $info, $optional);
+    $form_options = array(
+      'optional' => $optional,
+    );
+    return $this->build_variable_form($name, $label, $info, $form_options);
   }
 
   /**
@@ -228,13 +231,22 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
   function get_variable_form($name, $label, $info, $optional = FALSE) {
     $items = views_rules_data_types(array('entity' => TRUE));
     $type_options = views_rules_data_type_options($items);
-    return $this->build_variable_form($name, $label, $info, $optional, $type_options);
+    $form_options = array(
+      'optional' => $optional,
+      'type_options' => $type_options,
+    );
+    return $this->build_variable_form($name, $label, $info, $form_options);
   }
 
   /**
    * Builds the form element for a single variable.
    */
-  function build_variable_form($name, $label, $info, $optional = FALSE, $type_options = NULL) {
+  function build_variable_form($name, $label, $info, $options = array()) {
+    $options += array(
+      'optional' => FALSE,
+      'type_options' => NULL,
+    );
+
     $info += array(
       'type' => NULL,
       'label' => $label,
@@ -247,7 +259,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       '#title' => check_plain($label),
       '#tree' => TRUE,
     );
-    if (!$optional) {
+    if (!$options['optional']) {
       $form['enabled'] = array(
         '#type' => 'value',
         '#value' => 1,
@@ -274,10 +286,10 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $form['type'] = array(
       '#type' => 'select',
       '#title' => t('Data type'),
-      '#options' => is_array($type_options) ? $type_options : views_rules_data_type_options(),
+      '#options' => is_array($options['type_options']) ? $options['type_options'] : views_rules_data_type_options(),
       '#empty_value' => '',
       '#default_value' => $info['type'],
-      '#required' => empty($optional),
+      '#required' => empty($options['optional']),
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
       '#states' => $states,
@@ -287,7 +299,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       '#title' => t('Label'),
       '#default_value' => $info['label'],
       '#size' => 25,
-      '#required' => empty($optional),
+      '#required' => empty($options['optional']),
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
       '#states' => $states,
@@ -297,7 +309,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       '#title' => t('Name'),
       '#default_value' => $info['name'],
       '#size' => 25,
-      '#required' => empty($optional),
+      '#required' => empty($options['optional']),
       '#prefix' => '<div class="views-left-30">',
       '#suffix' => '</div>',
       '#states' => $states,
