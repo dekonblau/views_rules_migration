@@ -234,6 +234,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $form_options = array(
       'optional' => $optional,
       'type_options' => $type_options,
+      'rendered' => TRUE,
     );
     return $this->build_variable_form($name, $label, $info, $form_options);
   }
@@ -245,6 +246,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     $options += array(
       'optional' => FALSE,
       'type_options' => NULL,
+      'rendered' => FALSE,
     );
 
     $info += array(
@@ -252,6 +254,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       'label' => $label,
       'name' => $name,
       'enabled' => 1,
+      'rendered' => 0,
     );
 
     $form = array(
@@ -275,13 +278,22 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
         '#attributes' => array('id' => $enabled_css_id),
       );
     }
-    $form['_pre_wrap'] = array(
-      '#markup' => '<div class="clearfix">',
-    );
     $states = !isset($enabled_css_id) ? NULL : array(
       'visible' => array(
         '#' . $enabled_css_id => array('checked' => TRUE),
       ),
+    );
+    if ($options['rendered']) {
+      $form['rendered'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Use rendered result'),
+        '#default_value' => $info['rendered'],
+        '#description' => t('Check to use rendered value (e.g. rewritten) instead of the raw value. Note that a rendered field may contain markup but is not affected by the field\'s "Style settings".'),
+        '#states' => $states,
+      );
+    }
+    $form['_pre_wrap'] = array(
+      '#markup' => '<div class="clearfix">',
     );
     $form['type'] = array(
       '#type' => 'select',
@@ -572,12 +584,19 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
     }
     // Iterate through results.
     if ($variable_info = $this->get_processed_rules_variable_info(TRUE)) {
+      $view_variable_info = (array) $this->get_option('rules_variables');
       foreach ($this->view->result as $row_index => $row) {
         // Build row data.
         $data = array();
         if ($this->uses_fields()) {
           foreach ($variable_info as $var_name => $info) {
-            $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $info['view key']);
+            $option_info = $view_variable_info[$info['view key']];
+            if (empty($option_info['rendered'])) {
+              $data[$var_name] = $this->view->style_plugin->get_field_value($row_index, $info['view key']);
+            }
+            else {
+              $data[$var_name] = $this->view->style_plugin->get_field($row_index, $info['view key']);
+            }
           }
         }
         else {
