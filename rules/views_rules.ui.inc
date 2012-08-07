@@ -5,55 +5,6 @@
  */
 
 /**
- * Views loop factory UI.
- */
-class ViewsRulesLoopFactoryUI extends RulesPluginFactoryUI {
-  /**
-   * Builds the factory form for creating an instance of the plugin.
-   *
-   * @param $form
-   *   The form array to add the factory form to.
-   * @param $form_state
-   *   The current form state.
-   */
-  public function factoryForm(&$form, &$form_state) {
-    // Add view selector.
-    $form['views_rules_display'] = array(
-      '#type' => 'select',
-      '#title' => t('Views iterator display'),
-      '#options' => views_rules_list_iterators(),
-      '#description' => t('Select the view display to use for looping. To add a display to the list, add a "Rules" display to a view.'),
-      '#required' => TRUE,
-      '#ajax' => rules_ui_form_default_ajax() + array(
-        'trigger_as' => array('name' => 'continue'),
-      ),
-    );
-    $form['continue'] = array(
-      '#type' => 'submit',
-      '#name' => 'continue',
-      '#value' => t('Continue'),
-      '#ajax' => rules_ui_form_default_ajax(),
-    );
-  }
-
-  /**
-   * Creates a plugin given submitted form.
-   *
-   * @param $form
-   *   The form array.
-   * @param $form_state
-   *   The current form state.
-   * @return RulesPlugin
-   *   Fully created plugin, or NULL (e.g. due to invalid form state).
-   */
-  public function factoryCreatePlugin($form, $form_state) {
-    $display = $form_state['values']['views_rules_display'];
-    list($viewName, $displayName) = explode(':', $display, 2);
-    return views_rules_loop($viewName, $displayName);
-  }
-}
-
-/**
  * Views loop administrative UI.
  */
 class ViewsRulesLoopUI extends RulesActionContainerUI {
@@ -63,6 +14,14 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
   protected $element;
 
   public function form(&$form, &$form_state, $options = array(), $iterator = NULL) {
+    $baseCount = count(explode('/', RulesPluginUI::$basePath));
+    $op = arg($baseCount + 2);
+    if ($op == 'add') {
+      // Redirect to extended path.
+      $pathAddView = RulesPluginUI::path($this->element->root()->name, 'add-view-loop', $this->element->parentElement());
+      drupal_goto($pathAddView);
+    }
+
     // Build form with "Save" button.
     $options['init'] = FALSE;
     parent::form($form, $form_state, $options, $iterator);
