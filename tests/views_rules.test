@@ -135,208 +135,6 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
   }
 
   /**
-   * Tests Rules info retrieval.
-   */
-  public function testGetInfo() {
-    /** @var $iterator views_rules_plugin_display_rules */
-    $iterator = views_rules_get_view('views_rules_test:views_rules_1')->display_handler;
-
-    // Check parameter info.
-    $parameterInfo = $iterator->get_rules_parameter_info();
-    $this->assertEqual(array('tid', 'type'), array_keys($parameterInfo), 'Iterator parameter info is correctly returned.');
-
-    // Check variable info.
-    $variableInfo = $iterator->get_rules_variable_info();
-    $this->assertEqual(array('nid', 'title'), array_keys($variableInfo), 'Iterator row variable info is correctly returned.');
-
-    // Check variable info of non-field row styles.
-    $iterator = views_rules_get_view('views_rules_non_field_test:views_rules_1')->display_handler;
-    $variableInfo = $iterator->get_rules_variable_info();
-    $this->assertEqual(array('node'), array_keys($variableInfo), 'Non-field row style returns base entity type as variable.');
-  }
-
-  /**
-   * Tests variable info configuration form.
-   */
-  public function testVariableForm() {
-    $id = 'views_rules_test:views_rules_1';
-    $editPath = 'admin/structure/views/view/views_rules_test/edit';
-    $editUrl = url($editPath, array('absolute' => TRUE));
-    $variablePath = 'admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_variables';
-    $rearrangePath = 'admin/structure/views/nojs/rearrange/views_rules_test/views_rules_1/field';
-
-    // Test the row variable form.
-    $this->drupalGet($variablePath);
-    $this->assertFieldByName('options[nid][enabled]', NULL, 'Variable enabled checkbox is correctly displayed in form.');
-    $this->assertFieldByName('options[nid][type]', 'integer', 'Variable type is correctly displayed in form.');
-    $this->assertFieldByName('options[nid][label]', 'Nid', 'Variable label is correctly displayed in form.');
-    $this->assertFieldByName('options[nid][name]', 'nid', 'Variable name is correctly displayed in form.');
-
-    // Test changing variable.
-    $edit = array(
-      'options[nid][type]' => 'text',
-      'options[nid][label]' => 'Test',
-      'options[nid][name]' => 'test',
-    );
-    $this->drupalPost(NULL, $edit, t('Apply'));
-    $this->assertUrl($editPath, array(), 'Variable details can be edited in form.');
-    $this->drupalPost(NULL, array(), t('Save'));
-
-    // Check info.
-    /** @var $iterator views_rules_iterator */
-    $iterator = views_rules_get_view($id, TRUE)->display_handler;
-    $expectedInfo = array(
-      'test' => array('type' => 'text', 'label' => 'Test'),
-      'title' => array('type' => 'text', 'label' => 'Title'),
-    );
-    $this->assertIdentical($expectedInfo, $iterator->get_rules_variable_info(), 'Variable info is changed.');
-
-    // Test variable name valid characters.
-    $edit = array(
-      'options[nid][name]' => '#',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Only valid variable names can be saved.');
-
-    // Test variable name uniqueness.
-    $edit = array(
-      'options[nid][name]' => 'title',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable names must not overlap.');
-
-    // Test variable name uniqueness with respect to parameters.
-    $edit = array(
-      'options[nid][name]' => 'tid',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable names must not overlap with parameter names.');
-
-    // Test reserved name.
-    $edit = array(
-      'options[nid][name]' => 'views_rules_display',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'The variable name "views_rules_display" is reserved.');
-
-    // Test rearranging variables.
-    $edit = array(
-      'nid[weight]' => '2',
-      'title[weight]' => '1',
-    );
-    $this->drupalPost($rearrangePath, $edit, t('Apply'));
-    $this->drupalPost(NULL, array(), t('Save'));
-    $iterator = views_rules_get_view($id, TRUE)->display_handler;
-    $this->assertEqual(array('title', 'test'), array_keys($iterator->get_rules_variable_info()), 'Variable info is returned according to ordering in view.');
-
-    // Test emptying a variable field.
-    $edit = array(
-      'options[nid][type]' => '',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable type cannot be empty.');
-    $edit = array(
-      'options[nid][label]' => '',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable label cannot be empty.');
-    $edit = array(
-      'options[nid][name]' => '',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Variable name cannot be empty.');
-    $edit = array(
-      'options[nid][enabled]' => FALSE,
-    );
-    $this->drupalPost(NULL, $edit, t('Apply'));
-    $this->assertUrl($editPath, array(), 'Disabled variable can be empty.');
-
-    // Test disabling a variable.
-    $edit = array(
-      'options[nid][enabled]' => FALSE,
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->drupalPost(NULL, array(), t('Save'));
-    $iterator = views_rules_get_view($id, TRUE)->display_handler;
-    $this->assertEqual(array('title'), array_keys($iterator->get_rules_variable_info()), 'Variable can be disabled.');
-  }
-
-  /**
-   * Tests parameter info configuration form.
-   */
-  public function testParameterForm() {
-    $id = 'views_rules_test:views_rules_1';
-    $editPath = 'admin/structure/views/view/views_rules_test/edit';
-    $editUrl = url($editPath, array('absolute' => TRUE));
-    $variablePath = 'admin/structure/views/nojs/display/views_rules_test/views_rules_1/rules_parameter';
-    $rearrangePath = 'admin/structure/views/nojs/rearrange/views_rules_test/views_rules_1/argument';
-
-    // Test the parameter form.
-    $this->drupalGet($variablePath);
-    $this->assertNoFieldByName('options[nid][enabled]', '', 'Parameter enabled checkbox is not displayed in form.');
-
-    // Test changing parameter.
-    $edit = array(
-      'options[type][type]' => 'text',
-      'options[type][label]' => 'Test',
-      'options[type][name]' => 'test',
-    );
-    $this->drupalPost(NULL, $edit, t('Apply'));
-    $this->assertUrl($editPath, array(), 'Parameter details can be edited in form.');
-    $this->drupalPost(NULL, array(), t('Save'));
-
-    // Check info.
-    /** @var $iterator views_rules_iterator */
-    $iterator = views_rules_get_view($id, TRUE)->display_handler;
-    $expectedInfo = array(
-      'tid' => array('type' => 'integer', 'label' => 'Term ID'),
-      'test' => array('type' => 'text', 'label' => 'Test'),
-    );
-    $this->assertIdentical($expectedInfo, $iterator->get_rules_parameter_info(), 'Parameter info is changed.');
-
-    // Test parameter name uniqueness.
-    $edit = array(
-      'options[type][name]' => 'tid',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter names must not overlap.');
-
-    // Test reserved name.
-    $edit = array(
-      'options[type][name]' => 'views_rules_display',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'The parameter name "views_rules_display" is reserved.');
-
-    // Test rearranging parameters.
-    $edit = array(
-      'field_tags_tid[weight]' => '2',
-      'type[weight]' => '1',
-    );
-    $this->drupalPost($rearrangePath, $edit, t('Apply'));
-    $this->drupalPost(NULL, array(), t('Save'));
-    $iterator = views_rules_get_view($id, TRUE)->display_handler;
-    $this->assertEqual(array('test', 'tid'), array_keys($iterator->get_rules_parameter_info()), 'Parameter info is returned according to ordering in view.');
-
-    // Test emptying a parameter field.
-    $edit = array(
-      'options[type][type]' => '',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter type cannot be empty.');
-    $edit = array(
-      'options[type][label]' => '',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter label cannot be empty.');
-    $edit = array(
-      'options[type][name]' => '',
-    );
-    $this->drupalPost($variablePath, $edit, t('Apply'));
-    $this->assertNotEqual($editUrl, $this->getUrl(), 'Parameter name cannot be empty.');
-  }
-
-  /**
    * Tests iterator evaluation.
    */
   public function testExecuteIterator() {
@@ -358,6 +156,25 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
       array('title' => 'Node 3'),
     );
     $this->assertIdentical($expectedData, $iterable->rows, 'Iterator display correctly evaluates.');
+
+    // Check execution for rendered result.
+    $iterator = views_rules_get_view('views_rules_test:views_rules_1')->display_handler;
+    $option = $iterator->get_option('fields');
+    $option['title']['alter']['alter_text'] = 1;
+    $option['title']['alter']['text'] = '<em>[title]</em>';
+    $option['title']['link_to_node'] = 0;
+    $iterator->set_option('fields', $option);
+    $option = $iterator->get_option('rules_variables');
+    $option['nid']['enabled'] = 0;
+    $option['title']['rendered'] = 1;
+    $iterator->set_option('rules_variables', $option);
+    $iterator->execute_iterator(array($data['term']->tid), $iterable->reset());
+    $expectedData = array(
+      array('title' => '<em>Node 1</em>'),
+      array('title' => '<em>Node 2</em>'),
+      array('title' => '<em>Node 3</em>'),
+    );
+    $this->assertIdentical($expectedData, $iterable->rows, 'Iterator display correctly evaluates rendered result.');
 
     // Check execution for non-field row styles.
     $iterator = views_rules_get_view('views_rules_non_field_test:views_rules_1')->display_handler;
