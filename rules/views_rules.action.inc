@@ -41,6 +41,9 @@ function views_rules_collect_rows_info_alter(&$info, RulesAbstractPlugin $elemen
     }
     /** @var $iterator views_rules_iterator */
     $iterator = $view->display_handler;
+    if (!$iterator instanceof views_rules_iterator) {
+      return;
+    }
     // Add view arguments.
     foreach ($iterator->get_rules_parameter_info() as $var_name => $var_info) {
       $info['parameter'][$var_name] = $var_info;
@@ -55,6 +58,20 @@ function views_rules_collect_rows_info_alter(&$info, RulesAbstractPlugin $elemen
         'label' => t('List of @label', array('@label' => $label)),
       ) + $var_info;
     }
+  }
+}
+
+/**
+ * Validates the action.
+ */
+function views_rules_collect_rows_validate(RulesPlugin $element) {
+  $view_display_id = $element->settings['views_rules_display'];
+  $view = views_rules_get_view($view_display_id);
+  if (!$view || !$view->display_handler) {
+    throw new RulesIntegrityException(t('The view display %display does not exist.', array('%display' => $view_display_id)), $element);
+  }
+  if (!$view->display_handler instanceof views_rules_iterator) {
+    throw new RulesIntegrityException(t('The view display %display is not a Rules display.', array('%display' => $view_display_id)), $element);
   }
 }
 
