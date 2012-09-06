@@ -73,6 +73,9 @@ function views_rules_collect_rows_validate(RulesPlugin $element) {
   if (!$view->display_handler instanceof views_rules_iterator) {
     throw new RulesIntegrityException(t('The view display %display is not a Rules display.', array('%display' => $view_display_id)), $element);
   }
+  if (!$view->validate()) {
+    throw new RulesIntegrityException(t('The view display %display does not validate.', array('%display' => $view_display_id)), $element);
+  }
 }
 
 /**
