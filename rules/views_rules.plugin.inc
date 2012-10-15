@@ -36,6 +36,9 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
 
     // Check view display is an iterator.
     $display = $view->display_handler;
+    if (!isset($display)) {
+      throw new RulesIntegrityException(t('%plugin: Configured view display is missing.', array('%plugin' => $this->getPluginName())), $this);
+    }
     if (!$display instanceof views_rules_iterator) {
       throw new RulesIntegrityException(t('%plugin: Configured view display is not a Rules iterator.', array('%plugin' => $this->getPluginName())), $this);
     }
@@ -157,7 +160,7 @@ class ViewsRulesLoop extends RulesActionContainer implements ViewsRulesIterable 
    */
   public function getViewIterator($reset = FALSE) {
     if ($view = $this->getView($reset)) {
-      return $view->display_handler;
+      return $view->display_handler instanceof views_rules_iterator ? $view->display_handler : NULL;
     }
     return NULL;
   }
