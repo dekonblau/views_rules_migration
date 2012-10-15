@@ -276,6 +276,23 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
   }
 
   /**
+   * Tests importing a view loop for an invalid display.
+   */
+  public function testImportInvalidDisplay() {
+    $export = $this->getFileContents('view_loop_test_invalid_display.export.txt');
+    $message = 'Importing view loop for missing display triggers integrity error.';
+    try {
+      /** @var $rules_config RulesPlugin */
+      $rules_config = entity_import('rules_config', $export);
+      $rules_config->integrityCheck();
+      $this->fail($message);
+    }
+    catch (RulesIntegrityException $e) {
+      $this->pass($message);
+    }
+  }
+
+  /**
    * Creates an action set to test a view loop.
    */
   protected function createTestComponent() {
