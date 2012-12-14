@@ -229,7 +229,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    * Builds the form element for a single variable.
    */
   function get_variable_form($name, $label, $info, $optional = FALSE) {
-    $items = views_rules_data_types(array('entity' => TRUE));
+    $items = views_rules_data_types(array('entity' => TRUE, 'list' => TRUE));
     $type_options = views_rules_data_type_options($items);
     $form_options = array(
       'optional' => $optional,
