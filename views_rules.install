@@ -4,18 +4,8 @@
  * Module installation file.
  */
 
-/**
- * Updates collect action settings.
- */
-function views_rules_update_7000(&$sandbox) {
-  $rules = rules_config_load_multiple(FALSE);
-  /** @var $rule RulesPlugin */
-  foreach ($rules as $rule) {
-    if ($rule instanceof RulesContainerPlugin && views_rules_update_clean_collect_action_variable_names($rule)) {
-      $rule->save();
-    }
-  }
-}
+// TODO The old hook_update_N functions cannot be applied to Backdrop.
+function views_rules_update_7000(&$sandbox) { }
 
 /**
  * Cleans up variable names in collect actions.

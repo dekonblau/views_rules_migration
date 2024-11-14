@@ -174,3 +174,18 @@ function views_rules_views_plugins() {
     ),
   );
 }
+
+/**
+ * Implements hook_autoload_info().
+ */
+function views_rules_autoload_info() {
+  return array(
+    'ViewsRulesResultCollector' => 'rules/views_rules.action.inc',
+    'ViewsRulesLoop' => 'rules/views_rules.plugin.inc',
+    'ViewsRulesIterable' => 'rules/views_rules.plugin.inc',
+    'ViewsRulesLoopUI' => 'rules/views_rules.ui.inc',
+    'views_rules_plugin_display_rules' => 'views/views_rules_plugin_display_rules.inc',
+    'views_rules_iterator' => 'views/views_rules_plugin_display_rules.inc',
+    'views_rules_iterator_exception' => 'views/views_rules_plugin_display_rules.inc',
+  );
+}

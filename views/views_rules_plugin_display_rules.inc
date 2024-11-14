@@ -269,7 +269,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
       );
     }
     else {
-      $enabled_css_id = drupal_html_id('views-rules-variable-enabled');
+      $enabled_css_id = backdrop_html_id('views-rules-variable-enabled');
       $form['enabled'] = array(
         '#type' => 'checkbox',
         '#title' => t('Enabled'),
@@ -278,7 +278,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
         '#attributes' => array('id' => $enabled_css_id),
       );
     }
-    $states = !isset($enabled_css_id) ? NULL : array(
+    $states = !isset($enabled_css_id)?NULL : array(
       'visible' => array(
         '#' . $enabled_css_id => array('checked' => TRUE),
       ),
@@ -420,7 +420,7 @@ class views_rules_plugin_display_rules extends views_plugin_display implements v
    */
   function validate_unique_names($options, $additional = array()) {
     $errors = array();
-    $names = drupal_map_assoc($additional);
+    $names = backdrop_map_assoc($additional);
     foreach ($options as $id => $info) {
       $name = $info['name'];
       if (isset($names[$name])) {
@@ -637,4 +637,4 @@ interface views_rules_iterator {
 /**
  * Exception thrown during view iterator execution.
  */
-class views_rules_iterator_exception extends Exception {}
+class views_rules_iterator_exception extends Exception { }

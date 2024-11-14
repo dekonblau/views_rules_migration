@@ -30,4 +30,13 @@ class ViewsRulesTestIterable implements ViewsRulesIterable {
     $this->rows = array();
     return $this;
   }
+
+  /**
+   * Implements hook_autoload_info().
+   */
+  function views_rules_test_autoload_info() {
+    return array(
+      'ViewsRulesTestIterable' => 'views_rules_test.module',
+    );
+  }
 }
