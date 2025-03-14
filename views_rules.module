@@ -150,8 +150,8 @@ function views_rules_loop($view_name, $display_name, array $settings = array()) 
  */
 function views_rules_views_api() {
   return array(
-    'version' => '3.0',
-  );
+      'api' => '3.0',
+      'path' => backdrop_get_path('module', 'view_rules') . '/views',  );
 }
 
 /**
