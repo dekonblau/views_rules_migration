@@ -7,7 +7,7 @@
 /**
  * Base test for Views Rules.
  */
-abstract class ViewsRulesBaseTestCase extends DrupalWebTestCase {
+abstract class ViewsRulesBaseTestCase extends BackdropWebTestCase {
   /**
    * Creates site objects.
    */
@@ -27,9 +27,9 @@ abstract class ViewsRulesBaseTestCase extends DrupalWebTestCase {
       'language' => LANGUAGE_NONE,
       'field_tags' => array(LANGUAGE_NONE => array(array('tid' => $data['term']->tid))),
     );
-    $data['node1'] = $this->drupalCreateNode(array('title' => 'Node 1') + $nodeBase);
-    $data['node2'] = $this->drupalCreateNode(array('title' => 'Node 2') + $nodeBase);
-    $data['node3'] = $this->drupalCreateNode(array('title' => 'Node 3') + $nodeBase);
+    $data['node1'] = $this->backdropCreateNode(array('title' => 'Node 1') + $nodeBase);
+    $data['node2'] = $this->backdropCreateNode(array('title' => 'Node 2') + $nodeBase);
+    $data['node3'] = $this->backdropCreateNode(array('title' => 'Node 3') + $nodeBase);
 
     return $data;
   }
@@ -38,7 +38,7 @@ abstract class ViewsRulesBaseTestCase extends DrupalWebTestCase {
    * Retrieves a file in the test directory.
    */
   protected function getFileContents($fileName) {
-    $filePath = drupal_get_path('module', 'views_rules_test') . '/' . $fileName;
+    $filePath = backdrop_get_path('module', 'views_rules_test') . '/' . $fileName;
     return file_get_contents($filePath);
   }
 }
@@ -130,8 +130,8 @@ class ViewsRulesViewsDisplayTestCase extends ViewsRulesBaseTestCase {
 
   protected function setUp() {
     parent::setUp('views_rules_test', 'views_ui');
-    $user = $this->drupalCreateUser(array('administer views'));
-    $this->drupalLogin($user);
+    $user = $this->backdropCreateUser(array('administer views'));
+    $this->backdropLogin($user);
   }
 
   /**
@@ -205,8 +205,8 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
 
   protected function setUp() {
     parent::setUp('views_rules_test', 'rules_admin', 'views_ui');
-    $user = $this->drupalCreateUser(array('administer rules', 'administer views'));
-    $this->drupalLogin($user);
+    $user = $this->backdropCreateUser(array('administer rules', 'administer views'));
+    $this->backdropLogin($user);
   }
 
   /**
@@ -215,13 +215,13 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
   public function testViewLoopUI() {
     // Check redirection.
     rules_action_set(array('term' => array('type' => 'taxonomy_term', 'label' => 'Term')))->save('test');
-    $this->drupalGet('admin/config/workflow/rules/components/manage/test/add/1/view loop');
+    $this->backdropGet('admin/config/workflow/rules/components/manage/test/add/1/view loop');
     $this->assertUrl('admin/config/workflow/rules/components/manage/test/add-view-loop/1', array(), 'Form redirects when adding a view loop.');
 
     // Create view loop.
-    $this->drupalPost(NULL, array('views_rules_display' => 'views_rules_non_field_test:views_rules_1'), t('Continue'));
-    $this->drupalPost(NULL, array(), t('Switch to data selection'));
-    $this->drupalPost(NULL, array('parameter[tid][settings][tid:select]' => 'term:tid'), t('Save'));
+    $this->backdropPost(NULL, array('views_rules_display' => 'views_rules_non_field_test:views_rules_1'), t('Continue'));
+    $this->backdropPost(NULL, array(), t('Switch to data selection'));
+    $this->backdropPost(NULL, array('parameter[tid][settings][tid:select]' => 'term:tid'), t('Save'));
     $this->assertUrl('admin/config/workflow/rules/components/manage/test', array(), 'View loop creation form is saved.');
     $this->assertLinkByHref('admin/structure/views/view/views_rules_non_field_test/edit/views_rules_1', 0, 'View loop can be added via UI.');
   }
@@ -246,7 +246,7 @@ class ViewsRulesViewLoopTestCase extends ViewsRulesBaseTestCase {
     // Test evaluating view loop after data has changed.
     $newNode = (array) $data['node1'];
     $newNode = array_intersect_key($newNode, array_flip(array('title', 'type', 'field_tags')));
-    $this->drupalCreateNode($newNode);
+    $this->backdropCreateNode($newNode);
     $result = $comp->execute($data['term']);
     $this->assertNotIdentical($expectedData, reset($result), 'View loop result data is not prematurely cached.');
   }
@@ -389,21 +389,32 @@ class ViewsRulesCollectActionTestCase extends ViewsRulesBaseTestCase {
   public function testEvaluate() {
     $data = $this->createSiteData();
     $variables = array(
-      'term' => array('type' => 'taxonomy_term', 'label' => 'Term'),
-      'list1' => array('type' => 'list', 'label' => 'List 1', 'parameter' => FALSE),
-      'list2' => array('type' => 'list', 'label' => 'List 2', 'parameter' => FALSE),
+      'term' => array(
+        'type' => 'taxonomy_term',
+        'label' => 'Term',
+      ),
+      'list1' => array(
+        'type' => 'list',
+        'label' => 'List 1',
+        'parameter' => FALSE,
+      ),
+      'list2' => array(
+        'type' => 'list',
+        'label' => 'List 2',
+        'parameter' => FALSE,
+      ),
     );
     $provides = array('list1', 'list2');
     $comp = rules_action_set($variables, $provides)
       ->action('views_rules_collect_rows', array(
-        'views_rules_display' => 'views_rules_test:views_rules_1',
-        'tid:select' => 'term:tid',
-        'type' => 'article',
-        'nid:var' => 'list_nid',
-        'nid:label' => 'List of node IDs',
-        'title:var' => 'list_title',
-        'title:label' => 'List of node titles',
-      ))
+      'views_rules_display' => 'views_rules_test:views_rules_1',
+      'tid:select' => 'term:tid',
+      'type' => 'article',
+      'nid:var' => 'list_nid',
+      'nid:label' => 'List of node IDs',
+      'title:var' => 'list_title',
+      'title:label' => 'List of node titles',
+    ))
       ->action('data_set', array('data:select' => 'list1', 'value:select' => 'list_nid'))
       ->action('data_set', array('data:select' => 'list2', 'value:select' => 'list_title'));
 

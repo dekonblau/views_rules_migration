@@ -19,7 +19,7 @@ class ViewsRulesLoopUI extends RulesActionContainerUI {
     if ($op == 'add') {
       // Redirect to extended path.
       $pathAddView = RulesPluginUI::path($this->element->root()->name, 'add-view-loop', $this->element->parentElement());
-      drupal_goto($pathAddView);
+      backdrop_goto($pathAddView);
     }
 
     // Build form with "Save" button.

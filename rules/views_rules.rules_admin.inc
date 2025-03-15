@@ -21,7 +21,7 @@ function _views_rules_rules_ui_menu_alter(&$items, $base_path, $base_count) {
     'title arguments' => array('!plugin' => t('view loop')),
     'page arguments' => array_filter(array('views_rules_add_view_loop')) + $add_item['page arguments'],
     'file' => 'rules/views_rules.rules_admin.inc',
-    'file path' => drupal_get_path('module', 'views_rules'),
+    'file path' => backdrop_get_path('module', 'views_rules'),
   ) + $add_item;
   $items[$base_path . '/manage/%rules_config/add-view-loop/%rules_element']['page arguments'][2] = 'view loop';
 }
@@ -33,7 +33,7 @@ function _views_rules_rules_ui_menu_alter(&$items, $base_path, $base_count) {
 function views_rules_add_view_loop($form, &$form_state, $rules_config, $plugin_name, RulesContainerPlugin $parent, $base_path) {
   $cache = rules_get_cache();
   if (!isset($cache['plugin_info'][$plugin_name]['class'])) {
-    drupal_not_found();
+    backdrop_not_found();
     exit;
   }
 
@@ -41,7 +41,10 @@ function views_rules_add_view_loop($form, &$form_state, $rules_config, $plugin_n
   RulesPluginUI::$basePath = $base_path;
   if (!isset($form_state['rules_element'])) {
     RulesPluginUI::formDefaults($form, $form_state);
-    $form_state += array('parent_element' => $parent, 'plugin' => $plugin_name);
+    $form_state += array(
+      'parent_element' => $parent,
+      'plugin' => $plugin_name,
+    );
 
     // Add view selector.
     $form['views_rules_display'] = array(

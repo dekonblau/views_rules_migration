@@ -1,0 +1,36 @@
+[ViewsRulesBaseTestCase]
+name = ViewsRulesBaseTestCase
+description = ViewsRulesBaseTestCase
+group = views_rules_test
+file = views_rules.test
+
+[ViewsRulesFrameworkTestCase]
+name = Framework tests
+description = Tests basic module functionality.
+group = Views Rules
+file = views_rules.test
+
+[ViewsRulesViewsDisplayTestCase]
+name = Views display tests
+description = Tests Views display plugin implementation.
+group = Views Rules
+file = views_rules.test
+
+[ViewsRulesViewLoopTestCase]
+name = Rules view loop tests
+description = Tests view loop integration with Rules.
+group = Views Rules
+file = views_rules.test
+
+[ViewsRulesCollectActionTestCase]
+name = Rules collect action tests
+description = Tests view loop integration with Rules.
+group = Views Rules
+file = views_rules.test
+
+[ViewsRulesUpdateTestCase]
+name = Update tests
+description = Tests module updates.
+group = Views Rules
+file = views_rules.test
+

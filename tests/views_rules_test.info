@@ -1,5 +1,6 @@
 name = Views Rules Test
-core = 7.x
+backdrop = 1.x
+type = module
 dependencies[] = views_rules
 package = Rules
 hidden = TRUE
